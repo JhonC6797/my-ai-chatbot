@@ -1,0 +1,127 @@
+:root {
+    --bg-color: #212121;
+    --chat-bg: #171717;
+    --user-msg: #2f2f2f;
+    --ai-msg: #171717;
+    --text-color: #ececec;
+    --input-bg: #2f2f2f;
+    --accent-color: #10a37f; /* הירוק של ChatGPT */
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+/* אזור ההודעות עם גלילה */
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 100px; /* רווח כדי שהקלט לא יסתיר הודעות */
+}
+
+/* בועת שיחה כללית */
+.message {
+    max-width: 80%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+/* הודעת משתמש - מיושרת לימין עם רקע אפור כהה */
+.user-message {
+    align-self: flex-start;
+    background-color: var(--user-msg);
+    border-bottom-right-radius: 4px;
+}
+
+/* הודעת AI - מיושרת לשמאל */
+.assistant-message {
+    align-self: flex-end;
+    background-color: var(--ai-msg);
+    border-bottom-left-radius: 4px;
+    border: 1px solid #424242;
+}
+
+/* תיבת הקלט למטה */
+.chat-input-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(transparent, var(--bg-color) 30%);
+}
+
+#chat-form {
+    display: flex;
+    background-color: var(--input-bg);
+    border-radius: 12px;
+    padding: 8px 12px;
+    border: 1px solid #424242;
+}
+
+#user-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 16px;
+    padding: 8px;
+    outline: none;
+}
+
+#send-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+#send-btn:hover {
+    background-color: #1a7f64;
+}
+
+/* עיצוב לבורר המודלים */
+.model-selector-container {
+    padding: 15px;
+    background-color: var(--chat-bg);
+    border-bottom: 1px solid #424242;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+#model-select {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid #424242;
+    padding: 6px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+}

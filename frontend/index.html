@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="model-selector-container">
+            <label for="model-select">בחר מנוע בינה מלאכותית:</label>
+            <select id="model-select">
+                <option value="cloud">OpenAI (ענן - GPT-4o-mini)</option>
+                <option value="local">Ollama (מקומי על המחשב)</option>
+            </select>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message assistant-message">
+                היי! אני הצ'אטבוט החדש שלך. איך אני יכול לעזור היום?
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <form id="chat-form">
+                <input type="text" id="user-input" placeholder="הקלד הודעה כאן..." autocomplete="off" required>
+                <button type="submit" id="send-btn">שלח</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
