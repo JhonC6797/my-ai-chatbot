@@ -62,7 +62,7 @@ function renderHistoryItem(id, title) {
     
     // לחיצה על השיחה עצמה - טעינת ההודעות שלה
     item.addEventListener('click', (e) => {
-        if (e.target.closest('.history-actions')) return; // מונע קליק כפול כשלוחצים על המחיקה/עריכה
+        if (e.target.closest('.history-actions')) return; 
         selectConversation(id);
     });
     
@@ -88,13 +88,12 @@ function renderHistoryItem(id, title) {
 async function selectConversation(id) {
     currentConversationId = id;
     
-    // עדכון העיצוב בסיידבר (סימון ה-Active)
     document.querySelectorAll('.history-item').forEach(item => {
         item.classList.remove('active');
         if (item.getAttribute('data-id') === id) item.classList.add('active');
     });
     
-    chatMessages.innerHTML = ''; // ניקוי חלון הצ'אט
+    chatMessages.innerHTML = ''; 
     
     try {
         const response = await fetch(`http://127.0.0.1:8000/api/conversations/${id}/messages`);
@@ -117,8 +116,8 @@ async function startNewChat() {
         const newConv = await response.json();
         currentConversationId = newConv.id;
         
-        await fetchConversations(); // רענון הסיידבר
-        await selectConversation(newConv.id); // פתיחת הצ'אט החדש
+        await fetchConversations(); 
+        await selectConversation(newConv.id); 
     } catch (error) {
         console.error("שגיאה ביצירת שיחה חדשה:", error);
     }
@@ -130,7 +129,6 @@ async function deleteConversation(id) {
         await fetch('http://127.0.0.1:8000/api/conversations/' + id, { method: 'DELETE' });
         await fetchConversations();
         
-        // אם מחקנו את השיחה שהיינו בה כרגע, נעבור לשיחה אחרת או נפתח חדשה
         if (currentConversationId === id) {
             if (historyList.children.length > 0) {
                 const nextId = historyList.children[0].getAttribute('data-id');
@@ -152,7 +150,7 @@ async function updateConversationTitle(id, newTitle) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: newTitle })
         });
-        await fetchConversations(); // רענון הסיידבר כדי לראות את השם החדש
+        await fetchConversations(); 
     } catch (error) {
         console.error("שגיאה בעדכון השם:", error);
     }
@@ -167,20 +165,38 @@ function appendMessage(role, text) {
         messageDiv.innerText = text; 
     } else {
         messageDiv.classList.add('assistant-message');
-        // שימוש בספריית marked כדי לרנדר קוד מודגש, בולטים וכו'
         messageDiv.innerHTML = marked.parse(text); 
     }
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight; 
 }
 
-function showLoadingIndicator() {
-    if (loadingElement) return;
+// שדרוג אינדיקטור הטעינה לתמיכה בטקסט סטטוס חי מהסוכן
+function showLoadingIndicator(statusText = "הסוכן חושב...") {
+    if (loadingElement) {
+        // אם כבר קיים אלמנט, רק נעדכן לו את הטקסט
+        const textNode = loadingElement.querySelector('.indicator-status-text');
+        if (textNode) textNode.innerText = statusText;
+        return;
+    }
+    
     loadingElement = document.createElement('div');
     loadingElement.classList.add('typing-indicator');
+    
+    // אלמנט הטקסט הדינמי
+    const statusDiv = document.createElement('div');
+    statusDiv.classList.add('indicator-status-text');
+    statusDiv.innerText = statusText;
+    loadingElement.appendChild(statusDiv);
+    
+    // מעטפת הנקודות
+    const dotsWrapper = document.createElement('div');
+    dotsWrapper.classList.add('dots-wrapper');
     for (let i = 0; i < 3; i++) {
-        loadingElement.appendChild(document.createElement('span'));
+        dotsWrapper.appendChild(document.createElement('span'));
     }
+    loadingElement.appendChild(dotsWrapper);
+    
     chatMessages.appendChild(loadingElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -200,7 +216,9 @@ chatForm.addEventListener('submit', async (e) => {
 
     appendMessage('user', messageText);
     userInput.value = '';
-    showLoadingIndicator();
+    
+    // הצגת סטטוס שמכניס חיים ומסביר שהסוכן רץ ועובד
+    showLoadingIndicator("הסוכן מעבד נתונים ומחפש ברשת...");
 
     const selectedModel = modelSelect.value; 
 
@@ -221,18 +239,14 @@ chatForm.addEventListener('submit', async (e) => {
         removeLoadingIndicator();
         appendMessage('assistant', data.response);
         
-        // מרעננים את הסיידבר כי אולי השם של השיחה השתנה אוטומטית בהודעה הראשונה
         await fetchConversations();
 
     } catch (error) {
         console.error(error);
         removeLoadingIndicator();
-        appendMessage('assistant', 'אופס, משהו השתבש בחיבור לשרת או למודל.');
+        appendMessage('assistant', 'אופס, משהו השתבש בחיבור לשרת או שהסוכן נתקבל בשגיאה בחיפוש.');
     }
 });
 
-// חיבור כפתור "שיחה חדשה" בסיידבר
 newChatBtn.addEventListener('click', startNewChat);
-
-// הפעלה ראשונית של האפליקציה בטעינת הדף
 window.addEventListener('DOMContentLoaded', initApp);

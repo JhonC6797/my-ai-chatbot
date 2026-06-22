@@ -1,23 +1,23 @@
 :root {
     /* פלטת צבעים קוברנטית - AgentPey */
-    --bg-main: #0b0d13;       /* רקע ראשי כהה עמוק */
-    --bg-sidebar: #121622;    /* רקע סיידבר */
-    --bg-card: #191f30;       /* רקע תיבות קלט והודעות יוזר */
-    --bg-ai-bubble: #141926;  /* בועת תשובה של ה-AI */
-    --border-color: #242c42;  /* גבולות עדינים */
+    --bg-main: #080a10;       /* רקע עמוק וכהה יותר */
+    --bg-sidebar: #0f1322;    /* רקע סיידבר עשיר */
+    --bg-card: #171d33;       /* רקע תיבות קלט והודעות יוזר */
+    --bg-ai-bubble: #121829;  /* בועת תשובה של ה-AI */
+    --border-color: #222d4a;  /* גבולות כחלחלים מודרניים */
     
-    /* משתני צבעי המנחה המבוקשים */
-    --color-blue: #3a86ff;
-    --color-orange: #ff007a;
-    --color-yellow: #ffb703;
+    /* משתני צבעי המנחה משודרגים לגרסאות ניאון חיות */
+    --color-blue: #00f0ff;    /* ניאון סייאן מטורף */
+    --color-orange: #ff007a;  /* ורוד/כתום מגנטה דינמי */
+    --color-yellow: #ffb703;  /* צהוב זהב חם */
     
-    /* שילובי גרדיאנטים יוקרתיים */
-    --brand-gradient: linear-gradient(135deg, #ffb703 0%, #ff6b35 50%, #3a86ff 100%);
-    --btn-gradient: linear-gradient(90deg, #ff7a00 0%, #ffb703 100%);
-    --btn-gradient-hover: linear-gradient(90deg, #e06b00 0%, #e6a400 100%);
+    /* שילובי גרדיאנטים חיוורים ויוקרתיים */
+    --brand-gradient: linear-gradient(135deg, var(--color-yellow) 0%, #ff5500 50%, var(--color-blue) 100%);
+    --btn-gradient: linear-gradient(90deg, #ff5500 0%, var(--color-yellow) 100%);
+    --btn-gradient-hover: linear-gradient(90deg, #ff0055 0%, #ffb703 100%);
     
     --text-main: #f3f4f6;
-    --text-muted: #94a3b8;
+    --text-muted: #8fa0be;
 }
 
 body {
@@ -30,7 +30,6 @@ body {
     overflow: hidden;
 }
 
-/* מעטפת האפליקציה כולה - מפצלת לסיידבר וצ'אט */
 .app-wrapper {
     display: flex;
     width: 100vw;
@@ -58,18 +57,19 @@ body {
     font-size: 24px;
     font-weight: 800;
     letter-spacing: 0.5px;
-    background: linear-gradient(45deg, #ffb703, #ff6b35);
+    background: linear-gradient(45deg, var(--color-yellow), #ff5500);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgba(255, 85, 0, 0.3));
 }
 
 .logo-accent {
-    background: linear-gradient(45deg, #3a86ff, #00b4d8);
+    background: linear-gradient(45deg, var(--color-blue), #0077ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.3));
 }
 
-/* כפתור שיחה חדשה */
 .new-chat-btn {
     display: flex;
     align-items: center;
@@ -82,13 +82,14 @@ body {
     border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 }
 
 .new-chat-btn:hover {
-    background: rgba(58, 134, 255, 0.1);
+    background: rgba(0, 240, 255, 0.08);
     border-style: solid;
-    box-shadow: 0 0 12px rgba(58, 134, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    text-shadow: 0 0 4px rgba(255,255,255,0.5);
 }
 
 .history-section {
@@ -98,12 +99,12 @@ body {
 }
 
 .history-label {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
     padding: 0 6px;
 }
 
@@ -113,24 +114,26 @@ body {
     gap: 8px;
 }
 
-/* פריט היסטוריית שיחות יחיד */
 .history-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 11px 14px;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
-    group: hover;
+    border: 1px solid transparent;
 }
 
-.history-item:hover, .history-item.active {
+.history-item:hover {
     background-color: var(--bg-card);
+    border-color: rgba(255, 255, 255, 0.05);
 }
 
 .history-item.active {
+    background-color: var(--bg-card);
     border-right: 3px solid var(--color-orange);
+    box-shadow: inset -5px 0 10px rgba(255, 0, 122, 0.05);
 }
 
 .history-title {
@@ -139,14 +142,13 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 170px;
-    color: var(--text-main);
+    color: var(--text-muted);
 }
 
-.history-item:hover .history-title {
+.history-item.active .history-title, .history-item:hover .history-title {
     color: #ffffff;
 }
 
-/* כפתורי עריכה/מחיקה שיופיעו בריחוף */
 .history-actions {
     display: flex;
     gap: 4px;
@@ -168,10 +170,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.15s;
 }
 
-.edit-btn:hover { color: var(--color-yellow); background: rgba(255,183,3,0.1); }
-.delete-btn:hover { color: #ff4d4d; background: rgba(255,77,77,0.1); }
+.edit-btn:hover { color: var(--color-yellow); background: rgba(255,183,3,0.15); }
+.delete-btn:hover { color: #ff4d4d; background: rgba(255,77,77,0.15); }
 
 /* --- עיצוב אזור הצ'אט (Main Chat) --- */
 .chat-container {
@@ -183,15 +186,14 @@ body {
     background-color: var(--bg-main);
 }
 
-/* בורר המודל בראש המסך */
 .model-selector-container {
     padding: 14px 32px;
-    background-color: rgba(18, 22, 34, 0.6);
-    backdrop-filter: blur(8px);
+    background-color: rgba(15, 19, 34, 0.7);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between; /* פריסה מלאה בין הבורר לתגית הסטטוס */
     z-index: 10;
 }
 
@@ -204,7 +206,7 @@ body {
 
 .selector-wrapper label {
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 #model-select {
@@ -216,11 +218,44 @@ body {
     outline: none;
     cursor: pointer;
     font-size: 13.5px;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
 #model-select:focus {
     border-color: var(--color-blue);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+/* תגית סטטוס סוכן זוהרת וחדשה */
+.agent-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 240, 255, 0.06);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-blue);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.05);
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    background-color: var(--color-blue);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--color-blue);
+}
+
+.animate-pulse {
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 12px var(--color-blue); }
 }
 
 /* אזור זרם ההודעות */
@@ -236,35 +271,35 @@ body {
 
 .chat-messages::-webkit-scrollbar { width: 6px; }
 .chat-messages::-webkit-scrollbar-track { background: transparent; }
-.chat-messages::-webkit-scrollbar-thumb { background: #242c42; border-radius: 10px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #1e263f; border-radius: 10px; }
 
-/* מבנה הודעות */
+/* בועות הודעה בעיצוב חי ורענן */
 .message {
-    max-width: 70%;
+    max-width: 75%;
     padding: 16px 22px;
-    border-radius: 20px;
+    border-radius: 18px;
     line-height: 1.6;
     word-wrap: break-word;
     font-size: 15.5px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    animation: fadeInUp 0.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: fadeInUp 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 
-/* הודעת יוזר - מיושרת לימין ומקבלת עיצוב כחול מעודן */
 .user-message {
     align-self: flex-start;
     background-color: var(--bg-card);
     border-right: 3px solid var(--color-blue);
     border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.03);
 }
 
-/* הודעת מודל - מיושרת לשמאל */
 .assistant-message {
     align-self: flex-end;
     background-color: var(--bg-ai-bubble);
     border-left: 3px solid var(--color-orange);
     border-bottom-left-radius: 4px;
     border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.02);
 }
 
 /* תיבת הזנת הטקסט */
@@ -274,7 +309,7 @@ body {
     left: 0;
     right: 0;
     padding: 32px;
-    background: linear-gradient(transparent, var(--bg-main) 50%);
+    background: linear-gradient(transparent, var(--bg-main) 45%);
 }
 
 #chat-form {
@@ -282,17 +317,17 @@ body {
     align-items: center;
     background-color: var(--bg-card);
     border-radius: 16px;
-    padding: 12px 18px;
+    padding: 10px 16px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    transition: all 0.2s ease;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.25s ease;
     max-width: 900px;
     margin: 0 auto;
 }
 
 #chat-form:focus-within {
-    border-color: var(--color-orange);
-    box-shadow: 0 0 18px rgba(255, 107, 53, 0.15);
+    border-color: var(--color-blue);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.12);
 }
 
 #user-input {
@@ -301,7 +336,7 @@ body {
     border: none;
     color: var(--text-main);
     font-size: 16px;
-    padding: 4px;
+    padding: 6px;
     outline: none;
     font-family: inherit;
 }
@@ -310,10 +345,9 @@ body {
     color: var(--text-muted);
 }
 
-/* כפתור שלח עם הגרדיאנט המבוקש */
 #send-btn {
     background: var(--btn-gradient);
-    color: #0b0d13;
+    color: #040508;
     border: none;
     padding: 10px 22px;
     border-radius: 10px;
@@ -323,31 +357,43 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
 }
 
 #send-btn:hover {
     background: var(--btn-gradient-hover);
-    box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
+    box-shadow: 0 0 18px rgba(255, 183, 3, 0.45);
 }
 
 #send-btn:active {
     transform: scale(0.96);
 }
 
-/* --- אנימציית טעינה (3 נקודות) --- */
+/* --- אינדיקטור טעינה חי (Typing & Action Indicator) --- */
 .typing-indicator {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    flex-direction: column; /* שונה לעמודה כדי להציג טקסט מעל הנקודות */
+    gap: 10px;
     padding: 16px 22px;
     background-color: var(--bg-ai-bubble);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
+    border-radius: 18px;
     border-bottom-left-radius: 4px;
     align-self: flex-end;
     width: fit-content;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.indicator-status-text {
+    font-size: 12.5px;
+    color: var(--color-yellow);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.dots-wrapper {
+    display: flex;
+    gap: 6px;
 }
 
 .typing-indicator span {
@@ -363,19 +409,19 @@ body {
 .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes pulseDots {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-    40% { transform: scale(1.1); opacity: 1; background-color: var(--color-yellow); }
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; background-color: var(--text-muted); }
+    40% { transform: scale(1.2); opacity: 1; background-color: var(--color-blue); }
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* התאמה למובייל */
 @media (max-width: 768px) {
-    .sidebar { display: none; } /* במובייל נסתיר את הסיידבר בשלב זה */
+    .sidebar { display: none; }
     .chat-messages { padding: 16px; }
     .message { max-width: 85%; }
     .chat-input-container { padding: 16px; }
+    .agent-status-badge { display: none; } /* במובייל נחסוך מקום ברוחב המסך */
 }
