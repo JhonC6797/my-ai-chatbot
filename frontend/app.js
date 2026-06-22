@@ -4,19 +4,21 @@ const chatMessages = document.getElementById('chat-messages');
 const modelSelect = document.getElementById('model-select'); 
 const historyList = document.getElementById('history-list');
 const newChatBtn = document.getElementById('new-chat-btn');
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const sendBtn = document.getElementById('send-btn');
 
 let currentConversationId = null; 
 let loadingElement = null;
 
-// טעינה ראשונית של האפליקציה
+// טעינה ראשונית של האפליקציה ומצבי התצוגה והקלט
 async function initApp() {
+    initTheme();
+    setupTextarea();
     await fetchConversations();
     
-    // אם אין שיחות בכלל, ניצור אחת אוטומטית
     if (historyList.children.length === 0) {
         await startNewChat();
     } else {
-        // אם יש שיחות, נפתח את הראשונה ברשימה
         const firstChat = historyList.children[0];
         if (firstChat) {
             const id = firstChat.getAttribute('data-id');
@@ -25,14 +27,47 @@ async function initApp() {
     }
 }
 
-// 1. משיכת כל השיחות מהשרת והצגתן בסיידבר
+// ניהול ושמירת מצב Dark/Light Mode בדפדפן
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark-theme';
+    document.body.className = savedTheme;
+
+    themeToggleBtn.addEventListener('click', () => {
+        if (document.body.classList.contains('dark-theme')) {
+            document.body.classList.replace('dark-theme', 'light-theme');
+            localStorage.setItem('theme', 'light-theme');
+        } else {
+            document.body.classList.replace('light-theme', 'dark-theme');
+            localStorage.setItem('theme', 'dark-theme');
+        }
+    });
+}
+
+// הגדרת התנהגות מולטי-ליין חכמה לקלט (Textarea)
+function setupTextarea() {
+    userInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    userInput.addEventListener('keydown', function(e) {
+        // שליחה בלחיצה על Enter בלבד, ללא Shift
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); 
+            if (!userInput.disabled) {
+                chatForm.requestSubmit(); 
+            }
+        }
+    });
+}
+
+// משיכת השיחות מהסרבר
 async function fetchConversations() {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/conversations');
         const conversations = await response.json();
         
-        historyList.innerHTML = ''; // ניקוי הרשימה הישנה
-        
+        historyList.innerHTML = ''; 
         conversations.forEach(conv => {
             renderHistoryItem(conv.id, conv.title);
         });
@@ -41,7 +76,7 @@ async function fetchConversations() {
     }
 }
 
-// 2. רינדור פריט בודד בסיידבר עם כפתורי מחיקה ועריכה
+// רינדור פריט שיחה בודד
 function renderHistoryItem(id, title) {
     const item = document.createElement('div');
     item.classList.add('history-item');
@@ -60,20 +95,17 @@ function renderHistoryItem(id, title) {
         </div>
     `;
     
-    // לחיצה על השיחה עצמה - טעינת ההודעות שלה
     item.addEventListener('click', (e) => {
         if (e.target.closest('.history-actions')) return; 
         selectConversation(id);
     });
     
-    // כפתור מחיקה
     item.querySelector('.delete-btn').addEventListener('click', async () => {
         if (confirm("האם אתה בטוח שברצונך למחוק את השיחה הזו?")) {
             await deleteConversation(id);
         }
     });
 
-    // כפתור עריכת שם
     item.querySelector('.edit-btn').addEventListener('click', async () => {
         const newTitle = prompt("הכנס שם חדש לשיחה:", title);
         if (newTitle && newTitle.trim()) {
@@ -84,7 +116,7 @@ function renderHistoryItem(id, title) {
     historyList.appendChild(item);
 }
 
-// 3. בחירת שיחה אקטיבית וטעינת ההודעות שלה למסך
+// בחירת שיחה וטעינת היסטוריית ההודעות
 async function selectConversation(id) {
     currentConversationId = id;
     
@@ -109,7 +141,7 @@ async function selectConversation(id) {
     }
 }
 
-// 4. יצירת שיחה חדשה
+// יצירת שיחה חדשה
 async function startNewChat() {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/conversations', { method: 'POST' });
@@ -123,7 +155,7 @@ async function startNewChat() {
     }
 }
 
-// 5. מחיקת שיחה
+// מחיקת שיחה
 async function deleteConversation(id) {
     try {
         await fetch('http://127.0.0.1:8000/api/conversations/' + id, { method: 'DELETE' });
@@ -142,7 +174,7 @@ async function deleteConversation(id) {
     }
 }
 
-// 6. עדכון שם שיחה
+// עדכון כותרת השיחה
 async function updateConversationTitle(id, newTitle) {
     try {
         await fetch(`http://127.0.0.1:8000/api/conversations/${id}/title`, {
@@ -156,13 +188,13 @@ async function updateConversationTitle(id, newTitle) {
     }
 }
 
-// 7. הוספת הודעה למסך (תומך Markdown בעזרת marked)
+// הוספת בועת הודעה למסך (מוגן מהזרקות קוד)
 function appendMessage(role, text) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
     if (role === 'user') {
         messageDiv.classList.add('user-message');
-        messageDiv.innerText = text; 
+        messageDiv.textContent = text; 
     } else {
         messageDiv.classList.add('assistant-message');
         messageDiv.innerHTML = marked.parse(text); 
@@ -171,10 +203,9 @@ function appendMessage(role, text) {
     chatMessages.scrollTop = chatMessages.scrollHeight; 
 }
 
-// שדרוג אינדיקטור הטעינה לתמיכה בטקסט סטטוס חי מהסוכן
+// שליטה באינדיקטור הטעינה והסטטוס
 function showLoadingIndicator(statusText = "הסוכן חושב...") {
     if (loadingElement) {
-        // אם כבר קיים אלמנט, רק נעדכן לו את הטקסט
         const textNode = loadingElement.querySelector('.indicator-status-text');
         if (textNode) textNode.innerText = statusText;
         return;
@@ -183,13 +214,11 @@ function showLoadingIndicator(statusText = "הסוכן חושב...") {
     loadingElement = document.createElement('div');
     loadingElement.classList.add('typing-indicator');
     
-    // אלמנט הטקסט הדינמי
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('indicator-status-text');
     statusDiv.innerText = statusText;
     loadingElement.appendChild(statusDiv);
     
-    // מעטפת הנקודות
     const dotsWrapper = document.createElement('div');
     dotsWrapper.classList.add('dots-wrapper');
     for (let i = 0; i < 3; i++) {
@@ -208,7 +237,7 @@ function removeLoadingIndicator() {
     }
 }
 
-// האזנה לאירוע שליחת הצ'אט
+// האזנה לאירוע שליחת הטופס
 chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const messageText = userInput.value.trim();
@@ -216,10 +245,13 @@ chatForm.addEventListener('submit', async (e) => {
 
     appendMessage('user', messageText);
     userInput.value = '';
-    
-    // הצגת סטטוס שמכניס חיים ומסביר שהסוכן רץ ועובד
-    showLoadingIndicator("הסוכן מעבד נתונים ומחפש ברשת...");
+    userInput.style.height = 'auto'; 
 
+    // הגנה מפני שליחות כפולות (Race Conditions)
+    userInput.disabled = true;
+    sendBtn.disabled = true;
+    
+    showLoadingIndicator("הסוכן מעבד נתונים ומחפש ברשת...");
     const selectedModel = modelSelect.value; 
 
     try {
@@ -235,17 +267,41 @@ chatForm.addEventListener('submit', async (e) => {
         if (!response.ok) throw new Error('שגיאה בתקשורת עם השרת');
 
         const data = await response.json();
-        
         removeLoadingIndicator();
         appendMessage('assistant', data.response);
-        
         await fetchConversations();
 
     } catch (error) {
         console.error(error);
         removeLoadingIndicator();
-        appendMessage('assistant', 'אופס, משהו השתבש בחיבור לשרת או שהסוכן נתקבל בשגיאה בחיפוש.');
+        appendMessage('assistant', 'אופס, משהו השתבש בחיבור לשרת או שהסוכן נתקל בשגיאה בחיפוש.');
+    } finally {
+        // שחרור הפקדים והחזרת פוקוס
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
     }
+});
+
+// מנגנון מעקב עיניים עבור פרי הפלטיפוס
+document.addEventListener('mousemove', (e) => {
+    const pupils = document.querySelectorAll('.pupil');
+    
+    pupils.forEach(pupil => {
+        const eye = pupil.parentElement;
+        const rect = eye.getBoundingClientRect();
+        
+        const eyeX = rect.left + rect.width / 2;
+        const eyeY = rect.top + rect.height / 2;
+        
+        const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+        const maxDistance = 3; 
+        
+        const x = Math.cos(angle) * maxDistance;
+        const y = Math.sin(angle) * maxDistance;
+        
+        pupil.style.transform = `translate(${x}px, ${y}px)`;
+    });
 });
 
 newChatBtn.addEventListener('click', startNewChat);

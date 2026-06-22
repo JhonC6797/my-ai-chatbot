@@ -10,7 +10,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 # הייבוא שמחבר אותנו ללוגיקה של הסוכן הנייטיב החדש
-from agent_manager import run_agent_search
+from backend.agent_manager import run_agent_search
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))

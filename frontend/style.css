@@ -1,23 +1,39 @@
 :root {
-    /* פלטת צבעים קוברנטית - AgentPey */
-    --bg-main: #080a10;       /* רקע עמוק וכהה יותר */
-    --bg-sidebar: #0f1322;    /* רקע סיידבר עשיר */
-    --bg-card: #171d33;       /* רקע תיבות קלט והודעות יוזר */
-    --bg-ai-bubble: #121829;  /* בועת תשובה של ה-AI */
-    --border-color: #222d4a;  /* גבולות כחלחלים מודרניים */
+    /* פלטת צבעים כהה (Dark Theme) */
+    --bg-main: #080a10;       
+    --bg-sidebar: #0f1322;    
+    --bg-card: #171d33;       
+    --bg-ai-bubble: #121829;  
+    --border-color: #222d4a;  
     
-    /* משתני צבעי המנחה משודרגים לגרסאות ניאון חיות */
-    --color-blue: #00f0ff;    /* ניאון סייאן מטורף */
-    --color-orange: #ff007a;  /* ורוד/כתום מגנטה דינמי */
-    --color-yellow: #ffb703;  /* צהוב זהב חם */
+    --color-blue: #00f0ff;    
+    --color-orange: #ff007a;  
+    --color-yellow: #ffb703;  
     
-    /* שילובי גרדיאנטים חיוורים ויוקרתיים */
     --brand-gradient: linear-gradient(135deg, var(--color-yellow) 0%, #ff5500 50%, var(--color-blue) 100%);
     --btn-gradient: linear-gradient(90deg, #ff5500 0%, var(--color-yellow) 100%);
     --btn-gradient-hover: linear-gradient(90deg, #ff0055 0%, #ffb703 100%);
     
     --text-main: #f3f4f6;
     --text-muted: #8fa0be;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* פלטת צבעים בהירה (Light Theme) */
+body.light-theme {
+    --bg-main: #f4f6fa;       
+    --bg-sidebar: #ffffff;    
+    --bg-card: #ffffff;       
+    --bg-ai-bubble: #eaeef6;  
+    --border-color: #d1d9e7;  
+    
+    --color-blue: #0077ff;    
+    --color-orange: #e6006f;  
+    --color-yellow: #d97706;  
+    
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -28,6 +44,7 @@ body {
     padding: 0;
     height: 100vh;
     overflow: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app-wrapper {
@@ -36,7 +53,7 @@ body {
     height: 100vh;
 }
 
-/* --- עיצוב סרגל הצד (Sidebar) --- */
+/* --- סרגל צד (Sidebar) --- */
 .sidebar {
     width: 280px;
     background-color: var(--bg-sidebar);
@@ -46,6 +63,7 @@ body {
     padding: 20px 14px;
     box-sizing: border-box;
     z-index: 20;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .sidebar-header {
@@ -53,23 +71,217 @@ body {
     padding: 0 6px;
 }
 
+/* --- עיצוב פרי הפלטיפוס המונפש --- */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+}
+
+.perry-head {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #00b4a2 0%, #008b7d 100%);
+    border-radius: 12px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* אינטראקציה מגניבה כשמרחפים מעל פרי */
+.perry-head:hover {
+    transform: scale(1.08) translateY(-2px);
+}
+.perry-head:hover .bill {
+    animation: billWiggle 0.2s infinite alternate;
+}
+
+@keyframes billWiggle {
+    0% { transform: translateX(-50%) rotate(-3deg); }
+    100% { transform: translateX(-50%) rotate(3deg); }
+}
+
+.animate-breath {
+    animation: perryBreath 3s infinite ease-in-out;
+}
+
+@keyframes perryBreath {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03) translateY(-1px); }
+}
+
+.hair-tuft {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 8px;
+    display: none;
+}
+
+.hair-tuft::before, .hair-tuft::after {
+    content: '';
+    position: absolute;
+    background-color: #008b7d;
+    width: 2.5px;
+    height: 8px;
+    border-radius: 2px;
+}
+.hair-tuft::before { left: 3px; transform: rotate(-20deg); }
+.hair-tuft::after { right: 3px; transform: rotate(20deg); }
+
+.fedora {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fedora-top {
+    width: 26px;
+    height: 15px;
+    background-color: #5d4037;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
+}
+
+.fedora-top::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3.5px;
+    background-color: #1a1a1a;
+}
+
+.fedora-brim {
+    width: 38px;
+    height: 4.5px;
+    background-color: #5d4037;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.eyes-container {
+    display: flex;
+    justify-content: space-between;
+    width: 36px;
+    position: absolute;
+    top: 13px;
+    left: 4px;
+}
+
+.eye {
+    width: 14px;
+    height: 14px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1.5px 3px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.pupil {
+    width: 5px;
+    height: 5px;
+    background-color: #000000;
+    border-radius: 50%;
+    position: absolute;
+    transition: transform 0.05s ease-out;
+}
+
+.bill {
+    width: 30px;
+    height: 12px;
+    background: linear-gradient(to bottom, #ffb703 0%, #fb8500 100%);
+    border-radius: 4px 4px 14px 14px;
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 2.5px 5px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255,255,255,0.3);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.1s ease;
+}
+
+/* --- עיצוב הלוגו המשודרג (הפתרון לבאג ה-P!) --- */
 .logo {
+    display: inline-flex;
+    align-items: center;
     font-size: 24px;
     font-weight: 800;
     letter-spacing: 0.5px;
-    background: linear-gradient(45deg, var(--color-yellow), #ff5500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 8px rgba(255, 85, 0, 0.3));
 }
 
 .logo-accent {
     background: linear-gradient(45deg, var(--color-blue), #0077ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.3));
 }
 
+.logo-p {
+    background: linear-gradient(45deg, var(--color-yellow), #ff5500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    overflow: hidden; 
+    max-width: 25px; /* מונע את הבאג בדפדפנים */
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease,
+                transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================================
+   🧙‍♂️ לוגיקת מצבי התצוגה של האתר (Light/Dark)
+   ======================================================== */
+
+/* ☀️ מצב בהיר: */
+body.light-theme .fedora { 
+    opacity: 0; 
+    transform: translate(-50%, -12px) scale(0.6); 
+    pointer-events: none; 
+}
+body.light-theme .hair-tuft { 
+    display: block; 
+}
+body.light-theme .logo-p { 
+    opacity: 0; 
+    max-width: 0; 
+    transform: translateY(14px) scale(0.2); /* מחליק בצורה דרמטית למטה */
+    margin-right: -4px;
+}
+
+/* 🌙 מצב כהה: */
+body.dark-theme .fedora { 
+    opacity: 1; 
+    transform: translate(-50%, 0) scale(1); 
+}
+body.dark-theme .hair-tuft { 
+    display: none; 
+}
+body.dark-theme .logo-p { 
+    opacity: 1; 
+    max-width: 25px; 
+    transform: translateY(0) scale(1); /* חוזר למעלה באנימציה מדהימה */
+    margin-right: 0;
+}
+
+/* כפתורים ורשימת היסטוריה */
 .new-chat-btn {
     display: flex;
     align-items: center;
@@ -88,340 +300,96 @@ body {
 .new-chat-btn:hover {
     background: rgba(0, 240, 255, 0.08);
     border-style: solid;
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-    text-shadow: 0 0 4px rgba(255,255,255,0.5);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
 }
 
-.history-section {
-    margin-top: 28px;
-    flex: 1;
-    overflow-y: auto;
+.history-section { margin-top: 28px; flex: 1; overflow-y: auto; }
+.history-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding: 0 6px; }
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.history-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+.history-item:hover { background-color: var(--bg-card); border-color: rgba(255, 255, 255, 0.05); }
+
+/* שדרוג ניאוני יפיפה לטאב השיחה הפעיל */
+.history-item.active { 
+    background-color: var(--bg-card); 
+    border-right: 3px solid var(--color-orange); 
+    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.08), inset -5px 0 10px rgba(255, 0, 122, 0.03); 
 }
 
-.history-label {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
-    padding: 0 6px;
-}
+.history-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-muted); }
+.history-item.active .history-title, .history-item:hover .history-title { color: var(--text-main); }
+.history-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s ease; }
+.history-item:hover .history-actions { opacity: 1; }
 
-.history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.history-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-}
-
-.history-item:hover {
-    background-color: var(--bg-card);
-    border-color: rgba(255, 255, 255, 0.05);
-}
-
-.history-item.active {
-    background-color: var(--bg-card);
-    border-right: 3px solid var(--color-orange);
-    box-shadow: inset -5px 0 10px rgba(255, 0, 122, 0.05);
-}
-
-.history-title {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 170px;
-    color: var(--text-muted);
-}
-
-.history-item.active .history-title, .history-item:hover .history-title {
-    color: #ffffff;
-}
-
-.history-actions {
-    display: flex;
-    gap: 4px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-}
-
-.history-item:hover .history-actions {
-    opacity: 1;
-}
-
-.action-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-}
-
+.action-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
 .edit-btn:hover { color: var(--color-yellow); background: rgba(255,183,3,0.15); }
 .delete-btn:hover { color: #ff4d4d; background: rgba(255,77,77,0.15); }
 
-/* --- עיצוב אזור הצ'אט (Main Chat) --- */
-.chat-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-    background-color: var(--bg-main);
-}
+/* --- אזור הצ'אט (Main Chat) --- */
+.chat-container { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; background-color: var(--bg-main); transition: background-color 0.3s; }
+.model-selector-container { padding: 14px 32px; background-color: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; z-index: 10; transition: background-color 0.3s, border-color 0.3s; backdrop-filter: blur(12px); }
+.selector-wrapper { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.selector-wrapper label { color: var(--text-muted); font-weight: 600; }
 
-.model-selector-container {
-    padding: 14px 32px;
-    background-color: rgba(15, 19, 34, 0.7);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* פריסה מלאה בין הבורר לתגית הסטטוס */
-    z-index: 10;
-}
+#model-select { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; outline: none; cursor: pointer; font-size: 13.5px; transition: all 0.2s; }
+#model-select:focus { border-color: var(--color-blue); }
 
-.selector-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-}
+.header-actions { display: flex; align-items: center; gap: 16px; }
 
-.selector-wrapper label {
-    color: var(--text-muted);
-    font-weight: 600;
-}
+.theme-toggle-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 8px var(--shadow-color); }
+.theme-toggle-btn:hover { transform: rotate(15deg) scale(1.05); border-color: var(--color-blue); }
 
-#model-select {
-    background-color: var(--bg-card);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    padding: 8px 16px;
-    border-radius: 8px;
-    outline: none;
-    cursor: pointer;
-    font-size: 13.5px;
-    transition: all 0.2s;
-}
+body.dark-theme .sun-icon { display: block; }
+body.dark-theme .moon-icon { display: none; }
+body.light-theme .sun-icon { display: none; }
+body.light-theme .moon-icon { display: block; }
 
-#model-select:focus {
-    border-color: var(--color-blue);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-}
+.agent-status-badge { display: flex; align-items: center; gap: 8px; background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600; color: var(--color-blue); box-shadow: 0 2px 10px rgba(0, 240, 255, 0.05); }
+body.light-theme .agent-status-badge { background: rgba(0, 119, 255, 0.06); border-color: rgba(0, 119, 255, 0.2); color: var(--color-blue); }
 
-/* תגית סטטוס סוכן זוהרת וחדשה */
-.agent-status-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(0, 240, 255, 0.06);
-    border: 1px solid rgba(0, 240, 255, 0.2);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--color-blue);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.05);
-}
+.status-dot { width: 7px; height: 7px; background-color: var(--color-blue); border-radius: 50%; box-shadow: 0 0 8px var(--color-blue); }
+.animate-pulse { animation: pulseGlow 2s infinite ease-in-out; }
+@keyframes pulseGlow { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.2); } }
 
-.status-dot {
-    width: 7px;
-    height: 7px;
-    background-color: var(--color-blue);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--color-blue);
-}
-
-.animate-pulse {
-    animation: pulseGlow 2s infinite ease-in-out;
-}
-
-@keyframes pulseGlow {
-    0%, 100% { opacity: 0.4; transform: scale(0.9); }
-    50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 12px var(--color-blue); }
-}
-
-/* אזור זרם ההודעות */
-.chat-messages {
-    flex: 1;
-    padding: 32px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    padding-bottom: 140px; 
-}
-
+/* זרם ההודעות */
+.chat-messages { flex: 1; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding-bottom: 160px; }
 .chat-messages::-webkit-scrollbar { width: 6px; }
 .chat-messages::-webkit-scrollbar-track { background: transparent; }
-.chat-messages::-webkit-scrollbar-thumb { background: #1e263f; border-radius: 10px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-/* בועות הודעה בעיצוב חי ורענן */
-.message {
-    max-width: 75%;
-    padding: 16px 22px;
-    border-radius: 18px;
-    line-height: 1.6;
-    word-wrap: break-word;
-    font-size: 15.5px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    animation: fadeInUp 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-}
+.message { max-width: 75%; padding: 16px 22px; border-radius: 18px; line-height: 1.6; word-wrap: break-word; font-size: 15.5px; box-shadow: 0 6px 24px var(--shadow-color); white-space: pre-wrap; animation: smoothPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards; }
+@keyframes smoothPop { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-.user-message {
-    align-self: flex-start;
-    background-color: var(--bg-card);
-    border-right: 3px solid var(--color-blue);
-    border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.03);
-}
+.user-message { align-self: flex-start; background-color: var(--bg-card); border-right: 3px solid var(--color-blue); border-bottom-right-radius: 4px; }
+.assistant-message { align-self: flex-end; background-color: var(--bg-ai-bubble); border-left: 3px solid var(--color-orange); border-bottom-left-radius: 4px; border: 1px solid var(--border-color); }
 
-.assistant-message {
-    align-self: flex-end;
-    background-color: var(--bg-ai-bubble);
-    border-left: 3px solid var(--color-orange);
-    border-bottom-left-radius: 4px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.02);
-}
+/* קלט טקסט - Textarea חכם */
+.chat-input-container { position: absolute; bottom: 0; left: 0; right: 0; padding: 32px; background: linear-gradient(transparent, var(--bg-main) 45%); }
+#chat-form { display: flex; align-items: flex-end; background-color: var(--bg-card); border-radius: 16px; padding: 12px 16px; border: 1px solid var(--border-color); box-shadow: 0 12px 40px var(--shadow-color); transition: all 0.25s ease; max-width: 900px; margin: 0 auto; gap: 12px; }
+#chat-form:focus-within { border-color: var(--color-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.15); }
 
-/* תיבת הזנת הטקסט */
-.chat-input-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 32px;
-    background: linear-gradient(transparent, var(--bg-main) 45%);
-}
+#user-input { flex: 1; background: none; border: none; color: var(--text-main); font-size: 16px; padding: 4px 6px; outline: none; font-family: inherit; resize: none; max-height: 150px; line-height: 1.5; overflow-y: auto; }
+#user-input::placeholder { color: var(--text-muted); }
+#user-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
-#chat-form {
-    display: flex;
-    align-items: center;
-    background-color: var(--bg-card);
-    border-radius: 16px;
-    padding: 10px 16px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    transition: all 0.25s ease;
-    max-width: 900px;
-    margin: 0 auto;
-}
+#send-btn { background: var(--btn-gradient); color: #040508; border: none; padding: 10px 22px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; align-self: flex-end; height: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+#send-btn:hover:not(:disabled) { background: var(--btn-gradient-hover); box-shadow: 0 0 18px rgba(255, 183, 3, 0.45); }
+#send-btn:disabled { opacity: 0.5; cursor: not-allowed; background: var(--text-muted); box-shadow: none; }
+#send-btn:active:not(:disabled) { transform: scale(0.96); }
 
-#chat-form:focus-within {
-    border-color: var(--color-blue);
-    box-shadow: 0 0 25px rgba(0, 240, 255, 0.12);
-}
-
-#user-input {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--text-main);
-    font-size: 16px;
-    padding: 6px;
-    outline: none;
-    font-family: inherit;
-}
-
-#user-input::placeholder {
-    color: var(--text-muted);
-}
-
-#send-btn {
-    background: var(--btn-gradient);
-    color: #040508;
-    border: none;
-    padding: 10px 22px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-#send-btn:hover {
-    background: var(--btn-gradient-hover);
-    box-shadow: 0 0 18px rgba(255, 183, 3, 0.45);
-}
-
-#send-btn:active {
-    transform: scale(0.96);
-}
-
-/* --- אינדיקטור טעינה חי (Typing & Action Indicator) --- */
-.typing-indicator {
-    display: flex;
-    flex-direction: column; /* שונה לעמודה כדי להציג טקסט מעל הנקודות */
-    gap: 10px;
-    padding: 16px 22px;
-    background-color: var(--bg-ai-bubble);
-    border: 1px solid var(--border-color);
-    border-radius: 18px;
-    border-bottom-left-radius: 4px;
-    align-self: flex-end;
-    width: fit-content;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.indicator-status-text {
-    font-size: 12.5px;
-    color: var(--color-yellow);
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-
-.dots-wrapper {
-    display: flex;
-    gap: 6px;
-}
-
-.typing-indicator span {
-    width: 8px;
-    height: 8px;
-    background-color: var(--text-muted);
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulseDots 1.4s infinite ease-in-out both;
-}
-
+/* אינדיקטור טעינה */
+.typing-indicator { display: flex; flex-direction: column; gap: 10px; padding: 16px 22px; background-color: var(--bg-ai-bubble); border: 1px solid var(--border-color); border-radius: 18px; border-bottom-left-radius: 4px; align-self: flex-end; width: fit-content; box-shadow: 0 4px 15px var(--shadow-color); }
+.indicator-status-text { font-size: 12.5px; color: var(--color-yellow); font-weight: 600; }
+.dots-wrapper { display: flex; gap: 6px; }
+.typing-indicator span { width: 8px; height: 8px; background-color: var(--text-muted); border-radius: 50%; display: inline-block; animation: pulseDots 1.4s infinite ease-in-out both; }
 .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
 .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes pulseDots {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; background-color: var(--text-muted); }
-    40% { transform: scale(1.2); opacity: 1; background-color: var(--color-blue); }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+@keyframes pulseDots { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1.2); opacity: 1; background-color: var(--color-blue); } }
 
 @media (max-width: 768px) {
     .sidebar { display: none; }
     .chat-messages { padding: 16px; }
     .message { max-width: 85%; }
     .chat-input-container { padding: 16px; }
-    .agent-status-badge { display: none; } /* במובייל נחסוך מקום ברוחב המסך */
+    .agent-status-badge { display: none; } 
 }
