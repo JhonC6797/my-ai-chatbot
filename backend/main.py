@@ -1,13 +1,14 @@
 # main.py
 import os
 import uuid
+import time 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from dotenv import load_dotenv
 
-from backend.agent_manager import run_agent_search
+from backend.agent_manager import run_agent_search, generate_conversation_title
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
@@ -24,7 +25,6 @@ app.add_middleware(
 
 LOCAL_MODEL_NAME = "gemma4:latest"
 
-# מסד הנתונים הזמני בזיכרון השרת
 conversations_db = {}
 
 class ChatMessageInput(BaseModel):
@@ -36,9 +36,15 @@ class UpdateTitleInput(BaseModel):
 
 @app.get("/api/conversations")
 def get_conversations():
+    # 🌟 תוקן: מיון מהישן ביותר לחדש ביותר (כך שאינטגרציית prepend בפרונטאנד תשים את הכי חדש למעלה)
+    sorted_conversations = sorted(
+        conversations_db.items(),
+        key=lambda x: x[1].get("updated_at", 0),
+        reverse=False
+    )
     return [
         {"id": conv_id, "title": data["title"]}
-        for conv_id, data in conversations_db.items()
+        for conv_id, data in sorted_conversations
     ]
 
 @app.post("/api/conversations")
@@ -46,7 +52,8 @@ def create_conversation():
     conv_id = str(uuid.uuid4())
     conversations_db[conv_id] = {
         "title": "שיחה חדשה",
-        "messages": []
+        "messages": [],
+        "updated_at": time.time()  
     }
     return {"id": conv_id, "title": "שיחה חדשה"}
 
@@ -68,6 +75,7 @@ def update_title(conv_id: str, input_data: UpdateTitleInput):
         raise HTTPException(status_code=404, detail="השיחה לא נמצאה")
     
     conversations_db[conv_id]["title"] = input_data.title
+    conversations_db[conv_id]["updated_at"] = time.time()
     return {"status": "success", "title": input_data.title}
 
 @app.post("/api/conversations/{conv_id}/chat")
@@ -77,14 +85,11 @@ async def chat_endpoint(conv_id: str, request: ChatMessageInput):
         
     user_message = request.message
 
-    # שמירת הודעת המשתמש בהיסטוריה
     conversations_db[conv_id]["messages"].append({"role": "user", "content": user_message})
 
     try:
-        # שליפת ההיסטוריה הקודמת (ללא ההודעה הנוכחית שכבר נשלחת בנפרד)
         history = conversations_db[conv_id]["messages"][:-1]
         
-        # הרצת הסוכן עם הזיכרון המלא
         ai_text = run_agent_search(
             provider=request.provider,
             local_model_name=LOCAL_MODEL_NAME,
@@ -92,8 +97,14 @@ async def chat_endpoint(conv_id: str, request: ChatMessageInput):
             user_message=user_message
         )
         
-        # שמירת תגובת הסוכן בהיסטוריה
         conversations_db[conv_id]["messages"].append({"role": "assistant", "content": ai_text})
+        
+        if conversations_db[conv_id]["title"] == "שיחה חדשה":
+            new_title = generate_conversation_title(request.provider, LOCAL_MODEL_NAME, user_message)
+            conversations_db[conv_id]["title"] = new_title
+            
+        # עדכון חותמת הזמן הנוכחית של השיחה כדי להקפיץ אותה למעלה ברישום הבא
+        conversations_db[conv_id]["updated_at"] = time.time()
         
         return {
             "response": ai_text,
@@ -102,7 +113,6 @@ async def chat_endpoint(conv_id: str, request: ChatMessageInput):
         
     except Exception as e:
         print(f"Agent Execution Error: {e}")
-        # הסרת הודעת המשתמש האחרונה במקרה של כישלון כדי למנוע חוסר סנכרון
         if conversations_db[conv_id]["messages"]:
             conversations_db[conv_id]["messages"].pop()
         raise HTTPException(status_code=500, detail=f"הסוכן נתקל בשגיאה: {str(e)}")

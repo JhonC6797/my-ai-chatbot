@@ -5,15 +5,78 @@ const modelSelect = document.getElementById('model-select');
 const historyList = document.getElementById('history-list');
 const newChatBtn = document.getElementById('new-chat-btn');
 const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const langToggleBtn = document.getElementById('lang-toggle-btn');
 const sendBtn = document.getElementById('send-btn');
+
+// אלמנטים של המודאלים
+const renameModal = document.getElementById('rename-modal');
+const renameInput = document.getElementById('rename-input');
+const renameConfirmBtn = document.getElementById('rename-confirm-btn');
+const renameCancelBtn = document.getElementById('rename-cancel-btn');
+
+const deleteModal = document.getElementById('delete-modal');
+const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+
+// 🌟 אלמנטים חדשים: Mini-Dock, קריסת סיידבר, חיפוש וסטטיסטיקות
+const sidebarPanel = document.getElementById('sidebar-panel');
+const dockSearchBtn = document.getElementById('dock-search-btn');
+const dockNewChatBtn = document.getElementById('dock-new-chat-btn');
+const dockStatsBtn = document.getElementById('dock-stats-btn');
+const dockClearBtn = document.getElementById('dock-clear-btn');
+const sidebarSearchInput = document.getElementById('sidebar-search-input');
+const statsModal = document.getElementById('stats-modal');
+const statsCloseBtn = document.getElementById('stats-close-btn');
 
 let currentConversationId = null; 
 let loadingElement = null;
+let currentLang = localStorage.getItem('lang') || 'he'; 
 
-// טעינה ראשונית של האפליקציה ומצבי התצוגה והקלט
+const translations = {
+    he: {
+        newChat: "שיחה חדשה",
+        recentChats: "שיחות אחרונות",
+        activeEngine: "מנוע אקטיבי:",
+        statusBadge: "<span class='status-dot animate-pulse'></span>סוכן חכם + חיפוש ברשת פעיל",
+        placeholder: "שאל את הסוכן או בקש חיפוש... (Enter לשליחה, Shift+Enter לשורה חדשה)",
+        searchPlaceholder: "חפש שיחה...",
+        send: "שלח",
+        welcome: "היי! ברוך הבא ל-<strong>AgentP</strong>. אני מחובר כעת לאינטרנט בזמן אמת ומסוגל לבצע עבורך מחקרים, בדיקות ואוטומציות. מה התוכנית להיום?",
+        emptyChat: "השיחה הזו ריקה. שאל אותי משהו כדי להתחיל!",
+        loadingText: "הסוכן מעבד נתונים ומחפש ברשת...",
+        renameTitle: "שנה שם שיחה",
+        deleteTitle: "מחיקת שיחה",
+        deleteText: "האם אתה בטוח שברצונך למחוק את השיחה הזו לצמיתות?",
+        cancel: "ביטול",
+        save: "שמור",
+        delete: "מחק"
+    },
+    en: {
+        newChat: "New Chat",
+        recentChats: "Recent Conversations",
+        activeEngine: "Active Engine:",
+        statusBadge: "<span class='status-dot animate-pulse'></span>Smart Agent + Web Search Active",
+        placeholder: "Ask the agent or search... (Enter to send, Shift+Enter for new line)",
+        searchPlaceholder: "Search chats...",
+        send: "Send",
+        welcome: "Hi! Welcome to <strong>AgentP</strong>. I am currently connected to the internet in real-time and capable of conducting research, analysis, and automations for you. What's the plan today?",
+        emptyChat: "This conversation is empty. Ask me anything to get started!",
+        loadingText: "Agent is processing data and searching the web...",
+        renameTitle: "Rename Conversation",
+        deleteTitle: "Delete Conversation",
+        deleteText: "Are you sure you want to permanently delete this conversation?",
+        cancel: "Cancel",
+        save: "Save",
+        delete: "Delete"
+    }
+};
+
 async function initApp() {
     initTheme();
+    initLanguage();
     setupTextarea();
+    setupModalEvents();
+    setupDockAndSearchEvents(); // 🌟 הפעלת מאזיני האירועים החדשים ל-Dock
     await fetchConversations();
     
     if (historyList.children.length === 0) {
@@ -27,23 +90,103 @@ async function initApp() {
     }
 }
 
-// ניהול ושמירת מצב Dark/Light Mode בדפדפן
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     document.body.className = savedTheme;
 
     themeToggleBtn.addEventListener('click', () => {
-        if (document.body.classList.contains('dark-theme')) {
-            document.body.classList.replace('dark-theme', 'light-theme');
-            localStorage.setItem('theme', 'light-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        const newTheme = isDark ? 'light-theme' : 'dark-theme';
+        document.body.className = newTheme;
+        localStorage.setItem('theme', newTheme);
+    });
+}
+
+function initLanguage() {
+    applyLanguage(currentLang);
+
+    langToggleBtn.addEventListener('click', async () => {
+        currentLang = currentLang === 'he' ? 'en' : 'he';
+        localStorage.setItem('lang', currentLang);
+        applyLanguage(currentLang);
+        await fetchConversations(); 
+    });
+}
+
+function applyLanguage(lang) {
+    const t = translations[lang];
+    
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    
+    document.getElementById('txt-new-chat').textContent = t.newChat;
+    document.getElementById('txt-recent-chats').textContent = t.recentChats;
+    document.getElementById('txt-active-engine').textContent = t.activeEngine;
+    document.getElementById('txt-status-badge').innerHTML = t.statusBadge;
+    document.getElementById('txt-send').textContent = t.send;
+    userInput.placeholder = t.placeholder;
+    sidebarSearchInput.placeholder = t.searchPlaceholder;
+    
+    document.getElementById('modal-rename-title').textContent = t.renameTitle;
+    document.getElementById('modal-delete-title').textContent = t.deleteTitle;
+    document.getElementById('modal-delete-text').textContent = t.deleteText;
+    document.getElementById('rename-cancel-btn').textContent = t.cancel;
+    document.getElementById('rename-confirm-btn').textContent = t.save;
+    document.getElementById('delete-cancel-btn').textContent = t.cancel;
+    document.getElementById('delete-confirm-btn').textContent = t.delete;
+
+    if (chatMessages.children.length <= 1) {
+        chatMessages.innerHTML = `<div class="message assistant-message">${t.welcome}</div>`;
+    }
+}
+
+// 🌟 פונקציה חדשה: מאזיני אירועים ללוגיקת החיפוש הדינמי וה-Dock האנכי
+function setupDockAndSearchEvents() {
+    // א) לוגיקת קריסת/פתיחת ה-Sidebar דרך כפתור החיפוש ב-Dock
+    dockSearchBtn.addEventListener('click', () => {
+        const isCollapsed = sidebarPanel.classList.toggle('collapsed');
+        if (isCollapsed) {
+            dockSearchBtn.classList.remove('active-dock');
         } else {
-            document.body.classList.replace('light-theme', 'dark-theme');
-            localStorage.setItem('theme', 'dark-theme');
+            dockSearchBtn.classList.add('active-dock');
+            sidebarSearchInput.focus(); // שם פוקוס מיידי על החיפוש
+        }
+    });
+
+    // ב) לוגיקת חיפוש וסינון שיחות בזמן אמת (Live Frontend Filter)
+    sidebarSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        const items = historyList.querySelectorAll('.history-item');
+        
+        items.forEach(item => {
+            const title = item.querySelector('.history-title').textContent.toLowerCase();
+            if (title.includes(query)) {
+                item.style.display = 'flex'; // מציג אם תואם
+            } else {
+                item.style.display = 'none'; // מעלים אם לא תואם
+            }
+        });
+    });
+
+    // ג) קיצור דרך מה-Dock: פתיחת שיחה חדשה בלחיצה על העיפרון
+    dockNewChatBtn.addEventListener('click', () => {
+        sidebarPanel.classList.remove('collapsed');
+        dockSearchBtn.classList.add('active-dock');
+        startNewChat();
+    });
+
+    // ד) פתיחת מודאל הסטטיסטיקות המגניב
+    dockStatsBtn.addEventListener('click', () => statsModal.classList.add('show'));
+    statsCloseBtn.addEventListener('click', () => statsModal.classList.remove('show'));
+
+    // ה) כפתור הניקוי הכללי - מוחק את השיחה הנוכחית מהמסך במהירות
+    dockClearBtn.addEventListener('click', () => {
+        if (currentConversationId) {
+            openDeleteModal(currentConversationId);
         }
     });
 }
 
-// הגדרת התנהגות מולטי-ליין חכמה לקלט (Textarea)
 function setupTextarea() {
     userInput.addEventListener('input', function() {
         this.style.height = 'auto';
@@ -51,7 +194,6 @@ function setupTextarea() {
     });
 
     userInput.addEventListener('keydown', function(e) {
-        // שליחה בלחיצה על Enter בלבד, ללא Shift
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault(); 
             if (!userInput.disabled) {
@@ -61,7 +203,6 @@ function setupTextarea() {
     });
 }
 
-// משיכת השיחות מהסרבר
 async function fetchConversations() {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/conversations');
@@ -71,20 +212,24 @@ async function fetchConversations() {
         conversations.forEach(conv => {
             renderHistoryItem(conv.id, conv.title);
         });
+        
+        // נקה את תיבת החיפוש בריענון רשימה
+        sidebarSearchInput.value = '';
     } catch (error) {
         console.error("שגיאה בטעינת השיחות:", error);
     }
 }
 
-// רינדור פריט שיחה בודד
 function renderHistoryItem(id, title) {
     const item = document.createElement('div');
     item.classList.add('history-item');
     if (id === currentConversationId) item.classList.add('active');
     item.setAttribute('data-id', id);
     
+    const displayedTitle = title === "שיחה חדשה" ? translations[currentLang].newChat : title;
+    
     item.innerHTML = `
-        <span class="history-title">${title}</span>
+        <span class="history-title">${displayedTitle}</span>
         <div class="history-actions">
             <button class="action-btn edit-btn" title="שנה שם">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -100,23 +245,46 @@ function renderHistoryItem(id, title) {
         selectConversation(id);
     });
     
-    item.querySelector('.delete-btn').addEventListener('click', async () => {
-        if (confirm("האם אתה בטוח שברצונך למחוק את השיחה הזו?")) {
-            await deleteConversation(id);
-        }
-    });
+    item.querySelector('.delete-btn').addEventListener('click', () => openDeleteModal(id));
+    item.querySelector('.edit-btn').addEventListener('click', () => openRenameModal(id, title));
+    
+    historyList.prepend(item);
+}
 
-    item.querySelector('.edit-btn').addEventListener('click', async () => {
-        const newTitle = prompt("הכנס שם חדש לשיחה:", title);
-        if (newTitle && newTitle.trim()) {
-            await updateConversationTitle(id, newTitle.trim());
+let activeModalConversationId = null;
+
+function setupModalEvents() {
+    renameCancelBtn.addEventListener('click', () => renameModal.classList.remove('show'));
+    deleteCancelBtn.addEventListener('click', () => deleteModal.classList.remove('show'));
+    
+    renameConfirmBtn.addEventListener('click', async () => {
+        const newTitle = renameInput.value.trim();
+        if (newTitle && activeModalConversationId) {
+            await updateConversationTitle(activeModalConversationId, newTitle);
+            renameModal.classList.remove('show');
         }
     });
     
-    historyList.appendChild(item);
+    deleteConfirmBtn.addEventListener('click', async () => {
+        if (activeModalConversationId) {
+            await deleteConversation(activeModalConversationId);
+            deleteModal.classList.remove('show');
+        }
+    });
 }
 
-// בחירת שיחה וטעינת היסטוריית ההודעות
+function openRenameModal(id, currentTitle) {
+    activeModalConversationId = id;
+    renameInput.value = currentTitle === "שיחה חדשה" ? translations[currentLang].newChat : currentTitle;
+    renameModal.classList.add('show');
+    renameInput.focus();
+}
+
+function openDeleteModal(id) {
+    activeModalConversationId = id;
+    deleteModal.classList.add('show');
+}
+
 async function selectConversation(id) {
     currentConversationId = id;
     
@@ -132,7 +300,7 @@ async function selectConversation(id) {
         const messages = await response.json();
         
         if (messages.length === 0) {
-            appendMessage('assistant', "השיחה הזו ריקה. שאל אותי משהו כדי להתחיל!");
+            chatMessages.innerHTML = `<div class="message assistant-message">${translations[currentLang].emptyChat}</div>`;
         } else {
             messages.forEach(msg => appendMessage(msg.role, msg.content));
         }
@@ -141,7 +309,6 @@ async function selectConversation(id) {
     }
 }
 
-// יצירת שיחה חדשה
 async function startNewChat() {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/conversations', { method: 'POST' });
@@ -155,7 +322,6 @@ async function startNewChat() {
     }
 }
 
-// מחיקת שיחה
 async function deleteConversation(id) {
     try {
         await fetch('http://127.0.0.1:8000/api/conversations/' + id, { method: 'DELETE' });
@@ -174,7 +340,6 @@ async function deleteConversation(id) {
     }
 }
 
-// עדכון כותרת השיחה
 async function updateConversationTitle(id, newTitle) {
     try {
         await fetch(`http://127.0.0.1:8000/api/conversations/${id}/title`, {
@@ -188,7 +353,6 @@ async function updateConversationTitle(id, newTitle) {
     }
 }
 
-// הוספת בועת הודעה למסך (מוגן מהזרקות קוד)
 function appendMessage(role, text) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
@@ -203,8 +367,7 @@ function appendMessage(role, text) {
     chatMessages.scrollTop = chatMessages.scrollHeight; 
 }
 
-// שליטה באינדיקטור הטעינה והסטטוס
-function showLoadingIndicator(statusText = "הסוכן חושב...") {
+function showLoadingIndicator(statusText = translations[currentLang].loadingText) {
     if (loadingElement) {
         const textNode = loadingElement.querySelector('.indicator-status-text');
         if (textNode) textNode.innerText = statusText;
@@ -237,7 +400,6 @@ function removeLoadingIndicator() {
     }
 }
 
-// האזנה לאירוע שליחת הטופס
 chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const messageText = userInput.value.trim();
@@ -247,11 +409,10 @@ chatForm.addEventListener('submit', async (e) => {
     userInput.value = '';
     userInput.style.height = 'auto'; 
 
-    // הגנה מפני שליחות כפולות (Race Conditions)
     userInput.disabled = true;
     sendBtn.disabled = true;
     
-    showLoadingIndicator("הסוכן מעבד נתונים ומחפש ברשת...");
+    showLoadingIndicator(translations[currentLang].loadingText);
     const selectedModel = modelSelect.value; 
 
     try {
@@ -274,16 +435,14 @@ chatForm.addEventListener('submit', async (e) => {
     } catch (error) {
         console.error(error);
         removeLoadingIndicator();
-        appendMessage('assistant', 'אופס, משהו השתבש בחיבור לשרת או שהסוכן נתקל בשגיאה בחיפוש.');
+        appendMessage('assistant', currentLang === 'he' ? 'אופס, משהו השתבש.' : 'Oops, something went wrong.');
     } finally {
-        // שחרור הפקדים והחזרת פוקוס
         userInput.disabled = false;
         sendBtn.disabled = false;
         userInput.focus();
     }
 });
 
-// מנגנון מעקב עיניים עבור פרי הפלטיפוס
 document.addEventListener('mousemove', (e) => {
     const pupils = document.querySelectorAll('.pupil');
     

@@ -43,12 +43,15 @@ Final Answer: [התשובה המלאה והקצרה שלך בעברית]
         
     scratchpad = ""
     
+    openai_client = None
+    if provider == "openai":
+        openai_client = OpenAI()
+    
     for turn in range(3):
         full_prompt = template.format(chat_history=chat_history_str, input=user_message) + scratchpad
         
         if provider == "openai":
-            client = OpenAI()
-            response = client.chat.completions.create(
+            response = openai_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": full_prompt}],
                 temperature=0
@@ -85,7 +88,6 @@ Final Answer: [התשובה המלאה והקצרה שלך בעברית]
             if "Action Input:" in line:
                 action_input = line.split("Action Input:")[-1].strip().strip('"').strip("'")
         
-        # 🌟 ניתוח והפעלת הכלי הנכון דינמית!
         if action:
             if "duckduckgo_search" in action.lower() and action_input:
                 print(f"🔎 [סוכן מפעיל כלי] מריץ חיפוש ברשת עבור: '{action_input}'")
@@ -102,3 +104,42 @@ Final Answer: [התשובה המלאה והקצרה שלך בעברית]
                 return llm_output
                 
     return "הסוכן חרג מכמות שלבי המחשבה המותרת מבלי להגיע לתשובה סופית."
+
+
+def generate_conversation_title(provider: str, local_model_name: str, user_message: str) -> str:
+    """
+    מייצר כותרת קצרה וקולעת (3-4 מילים) בעברית על בסיס הודעת המשתמש הראשונה.
+    """
+    prompt = f"""תן כותרת קצרה וממצה בעברית (עד 3-4 מילים) עבור שיחת צ'אט שמתחילה בהודעה הבאה.
+חוק חשוב: אל תשתמש במרכאות, נקודות או מילים מיותרות כמו "כותרת:". החזר אך ורק את טקסט הכותרת עצמו.
+
+ההודעה: {user_message}"""
+    
+    try:
+        if provider == "openai":
+            client = OpenAI()
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=25
+            )
+            return response.choices[0].message.content.strip().replace('"', '').replace("'", "")
+        else:
+            with httpx.Client(trust_env=False) as http_client:
+                res = http_client.post(
+                    "http://localhost:11434/v1/chat/completions",
+                    json={
+                        "model": local_model_name,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "temperature": 0.3,
+                        "max_tokens=25": 25
+                    },
+                    timeout=15.0
+                )
+                return res.json()["choices"][0]["message"]["content"].strip().replace('"', '').replace("'", "")
+    except Exception as e:
+        print(f"Error generating auto-title: {e}")
+        return "שיחה חדשה ומעניינת"
+    
+    
