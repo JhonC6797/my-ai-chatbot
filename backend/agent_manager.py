@@ -1,39 +1,36 @@
 # agent_manager.py
 import os
-import httpx
+import json
 from openai import OpenAI
-
-# מייבאים את שני הכלים מקובץ הכלים שלך
 from backend.tools import web_search, get_system_date_time
 
-def run_agent_search(provider: str, local_model_name: str, history_messages: list, user_message: str) -> str:
-    """
-    מנגנון סוכן אוטונומי המנהל מערך כלים (Multi-Tool ReAct Engine)
-    """
-    
-    template = """אתה סוכן ה-AI האוטונומי של פלטפורמת AgentPey.
-ענה למשתמש תמיד בעברית רהוטה, קצרה, **לעניין** ומעוצבת עם Markdown.
+def run_agent_stream(provider: str, local_model_name: str, history_messages: list, user_message: str):
+    """מנגנון סוכן ReAct המזרים אותיות ושלבי חשיבה בזמן אמת (Token Stream)"""
+    template = """You are the autonomous AI agent of the AgentP platform.
+Your job is to assist the user by reasoning step-by-step and using the provided tools when necessary.
 
-⚠️ חוק ברזל לשנת 2026: השנה הנוכחית היא 2026.
+CRITICAL MANDATE: Even though this system prompt is in English, you must ALWAYS process the user's input in Hebrew and write your "Final Answer" strictly in fluent, concise, and precise Hebrew, styled cleanly with Markdown.
 
-יש לך גישה לשני הכלים הבאים:
-1. duckduckgo_search: כלי לחיפוש מידע עדכני ברשת (חדשות, מזג אוויר, פוליטיקה). קלט: מילות חיפוש באנגלית.
-2. get_system_date_time: כלי פנימי השולף את התאריך והשעה הנוכחיים של המחשב. אין צורך בקלט עבור כלי זה.
+⚠️ IRON LAW FOR THE YEAR 2026: The current year is 2026.
 
-עליך לפעול בדיוק לפי הפורמט הבא בכל שלב:
-Thought: המחשבה שלך (למשל: המשתמש שואל מה התאריך, אני אפעיל את כלי השעה המקומי).
-Action: שם הכלי המדויק שבו בחרת להשתמש (duckduckgo_search או get_system_date_time)
-Action Input: הקלט לכלי (עבור duckduckgo_search רשום מילות מפתח, עבור get_system_date_time רשום none)
-Observation: התוצאה מהכלי תופיע כאן.
+You have access to the following two tools:
+1. duckduckgo_search: A tool to search for up-to-date information on the web. Input: Search keywords.
+2. get_system_date_time: An internal tool that retrieves the exact current date and time. No input required (write none).
 
-⚠️ דגש על התשובה הסופית: אל תמציא סיפורים. תהיה ענייני, חד וישר לעניין!
-Thought: מצאתי את המידע המדויק.
-Final Answer: [התשובה המלאה והקצרה שלך בעברית]
+You must strictly follow the ReAct format below for each step:
+Thought: Your thought process regarding the request.
+Action: The exact tool name (duckduckgo_search or get_system_date_time).
+Action Input: The input argument for the tool.
+Observation: The result from the tool.
 
-היסטוריית השיחה עד כה:
+⚠️ FINAL ANSWER CONSTRAINT: Be concise, direct, sharp, and answer to the point in Hebrew!
+Thought: I have found the exact and accurate information needed.
+Final Answer: [Your complete, concise response in fluent, natural Hebrew]
+
+Chat history so far:
 {chat_history}
 
-ההודעה הנוכחית של המשתמש: {input}
+Current user message: {input}
 """
 
     chat_history_str = ""
@@ -43,42 +40,53 @@ Final Answer: [התשובה המלאה והקצרה שלך בעברית]
         
     scratchpad = ""
     
-    openai_client = None
     if provider == "openai":
-        openai_client = OpenAI()
+        client = OpenAI()
+        model_name = "gpt-4o-mini"
+    else:
+        client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+        model_name = local_model_name
+        
+    yield {"type": "status", "text": "הסוכן שוקל את צעדיו ובוחר אסטרטגיה..."}
     
     for turn in range(3):
         full_prompt = template.format(chat_history=chat_history_str, input=user_message) + scratchpad
         
-        if provider == "openai":
-            response = openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": full_prompt}],
-                temperature=0
-            )
-            llm_output = response.choices[0].message.content
-        else:
-            with httpx.Client(trust_env=False) as http_client:
-                res = http_client.post(
-                    "http://localhost:11434/v1/chat/completions",
-                    json={
-                        "model": local_model_name,
-                        "messages": [{"role": "user", "content": full_prompt}],
-                        "temperature": 0
-                    },
-                    timeout=90.0
-                )
-                llm_output = res.json()["choices"][0]["message"]["content"]
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[{"role": "user", "content": full_prompt}],
+            temperature=0,
+            stream=True
+        )
         
-        print(f"\n🧠 [AgentPey Thought - Turn {turn+1}]:")
-        print(llm_output)
+        turn_output = ""
+        has_reached_final = False
         
-        scratchpad += "\n" + llm_output
-        
-        if "Final Answer:" in llm_output:
-            return llm_output.split("Final Answer:")[-1].strip()
+        for chunk in response:
+            delta = chunk.choices[0].delta.content or ""
+            if not delta:
+                continue
             
-        cleaned_output = llm_output.replace("**", "")
+            turn_output += delta
+            
+            if "Final Answer:" in turn_output:
+                if not has_reached_final:
+                    has_reached_final = True
+                    yield {"type": "status", "text": "מנסח תשובה סופית..."}
+                    final_part = turn_output.split("Final Answer:")[-1]
+                    if final_part:
+                        yield {"type": "final_chunk", "text": final_part}
+                else:
+                    yield {"type": "final_chunk", "text": delta}
+            else:
+                yield {"type": "thought_chunk", "text": delta}
+        
+        scratchpad += "\n" + turn_output
+        
+        if "Final Answer:" in turn_output:
+            return
+            
+        cleaned_output = turn_output.replace("**", "")
         action = None
         action_input = None
         
@@ -89,57 +97,35 @@ Final Answer: [התשובה המלאה והקצרה שלך בעברית]
                 action_input = line.split("Action Input:")[-1].strip().strip('"').strip("'")
         
         if action:
+            tool_name_heb = "חיפוש ברשת" if "duckduckgo" in action.lower() else "שעון מערכת"
+            yield {"type": "status", "text": f"הסוכן מפעיל כלי: {tool_name_heb}..."}
+            
             if "duckduckgo_search" in action.lower() and action_input:
-                print(f"🔎 [סוכן מפעיל כלי] מריץ חיפוש ברשת עבור: '{action_input}'")
                 observation = web_search(action_input)
-                scratchpad += f"\nObservation: {observation}"
             elif "get_system_date_time" in action.lower():
-                print(f"⏰ [סוכן מפעיל כלי] בודק שעון מערכת פנימי...")
                 observation = get_system_date_time()
-                scratchpad += f"\nObservation: {observation}"
             else:
-                scratchpad += "\nObservation: כלי לא מוכר."
+                observation = "כלי לא מוכר."
+            
+            observation_log = f"\nObservation: {observation}\n"
+            scratchpad += observation_log
+            yield {"type": "thought_chunk", "text": observation_log}
+            yield {"type": "status", "text": "מנתח את תוצאות הכלי וממשיך לחשוב..."}
         else:
-            if "Final Answer:" not in llm_output:
-                return llm_output
-                
-    return "הסוכן חרג מכמות שלבי המחשבה המותרת מבלי להגיע לתשובה סופית."
-
+            if "Final Answer:" not in turn_output:
+                yield {"type": "final_chunk", "text": turn_output}
+                return
 
 def generate_conversation_title(provider: str, local_model_name: str, user_message: str) -> str:
-    """
-    מייצר כותרת קצרה וקולעת (3-4 מילים) בעברית על בסיס הודעת המשתמש הראשונה.
-    """
-    prompt = f"""תן כותרת קצרה וממצה בעברית (עד 3-4 מילים) עבור שיחת צ'אט שמתחילה בהודעה הבאה.
-חוק חשוב: אל תשתמש במרכאות, נקודות או מילים מיותרות כמו "כותרת:". החזר אך ורק את טקסט הכותרת עצמו.
-
-ההודעה: {user_message}"""
-    
+    prompt = f"""Generate a short, concise chat title (max 3-4 words) in Hebrew for: {user_message}"""
     try:
         if provider == "openai":
             client = OpenAI()
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
-                max_tokens=25
-            )
+            response = client.chat.completions.create(model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}], temperature=0.3, max_tokens=25)
             return response.choices[0].message.content.strip().replace('"', '').replace("'", "")
         else:
-            with httpx.Client(trust_env=False) as http_client:
-                res = http_client.post(
-                    "http://localhost:11434/v1/chat/completions",
-                    json={
-                        "model": local_model_name,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "temperature": 0.3,
-                        "max_tokens=25": 25
-                    },
-                    timeout=15.0
-                )
-                return res.json()["choices"][0]["message"]["content"].strip().replace('"', '').replace("'", "")
-    except Exception as e:
-        print(f"Error generating auto-title: {e}")
+            client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+            response = client.chat.completions.create(model=local_model_name, messages=[{"role": "user", "content": prompt}], temperature=0.3, max_tokens=25)
+            return response.choices[0].message.content.strip().replace('"', '').replace("'", "")
+    except:
         return "שיחה חדשה ומעניינת"
-    
-    
