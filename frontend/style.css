@@ -1,39 +1,44 @@
 :root {
-    /* פלטת צבעים כהה (Dark Theme) */
-    --bg-main: #080a10;       
-    --bg-sidebar: #0f1322;    
-    --bg-card: #171d33;       
-    --bg-ai-bubble: #121829;  
-    --border-color: #222d4a;  
+    /* 🌙 פלטת צבעים כהה יוקרתית (Premium Dark Slate) */
+    --bg-main: #0f172a;       
+    --bg-sidebar: #1e293b;    
+    --bg-card: #334155;       
+    --bg-ai-bubble: #1e293b;  
+    --border-color: rgba(255, 255, 255, 0.08);  
     
-    --color-blue: #00f0ff;    
-    --color-orange: #ff007a;  
-    --color-yellow: #ffb703;  
+    /* צבעי מותג - פרי הפלטיפוס בגרסת סייבר */
+    --color-perry-teal: #00b4a2;
+    --color-perry-dark-teal: #008b7d;
+    --color-blue: #38bdf8;    
+    --color-orange: #f43f5e;  
+    --color-yellow: #f59e0b;  
     
-    --brand-gradient: linear-gradient(135deg, var(--color-yellow) 0%, #ff5500 50%, var(--color-blue) 100%);
-    --btn-gradient: linear-gradient(90deg, #ff5500 0%, var(--color-yellow) 100%);
-    --btn-gradient-hover: linear-gradient(90deg, #ff0055 0%, #ffb703 100%);
+    --brand-gradient: linear-gradient(135deg, var(--color-yellow) 0%, #f97316 50%, var(--color-blue) 100%);
+    --btn-gradient: linear-gradient(90deg, #ea580c 0%, var(--color-yellow) 100%);
+    --btn-gradient-hover: linear-gradient(90deg, #dc2626 0%, #f59e0b 100%);
     
-    --text-main: #f3f4f6;
-    --text-muted: #8fa0be;
-    --shadow-color: rgba(0, 0, 0, 0.5);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.15);
 }
 
-/* פלטת צבעים בהירה (Light Theme) */
+/* ☀️ פלטת צבעים בהירה נקייה (Clean Alabaster Light) */
 body.light-theme {
-    --bg-main: #f4f6fa;       
+    --bg-main: #f8fafc;       
     --bg-sidebar: #ffffff;    
     --bg-card: #ffffff;       
-    --bg-ai-bubble: #eaeef6;  
-    --border-color: #d1d9e7;  
+    --bg-ai-bubble: #f1f5f9;  
+    --border-color: rgba(15, 23, 42, 0.08);  
     
-    --color-blue: #0077ff;    
-    --color-orange: #e6006f;  
+    --color-blue: #0284c7;    
+    --color-orange: #e11d48;  
     --color-yellow: #d97706;  
     
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
-    --shadow-color: rgba(0, 0, 0, 0.08);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --shadow-premium: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+    --shadow-glow: 0 0 20px rgba(2, 132, 199, 0.1);
 }
 
 body {
@@ -44,7 +49,7 @@ body {
     padding: 0;
     height: 100vh;
     overflow: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
 }
 
 .app-wrapper {
@@ -55,62 +60,64 @@ body {
 
 /* --- סרגל צד (Sidebar) --- */
 .sidebar {
-    width: 280px;
+    width: 300px;
     background-color: var(--bg-sidebar);
     border-left: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    padding: 20px 14px;
+    padding: 24px 16px;
     box-sizing: border-box;
     z-index: 20;
-    transition: background-color 0.3s, border-color 0.3s;
+    box-shadow: var(--shadow-premium);
+    transition: background-color 0.4s, border-color 0.4s;
 }
 
 .sidebar-header {
-    margin-bottom: 24px;
-    padding: 0 6px;
+    margin-bottom: 32px;
+    padding: 0 8px;
 }
 
-/* --- עיצוב פרי הפלטיפוס המונפש --- */
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     cursor: pointer;
 }
 
+/* ראש פרי הפלטיפוס */
 .perry-head {
     position: relative;
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #00b4a2 0%, #008b7d 100%);
-    border-radius: 12px;
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, var(--color-perry-teal) 0%, var(--color-perry-dark-teal) 100%);
+    border-radius: 14px;
     box-sizing: border-box;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     flex-shrink: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* אינטראקציה מגניבה כשמרחפים מעל פרי */
 .perry-head:hover {
     transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 180, 162, 0.3);
 }
+
 .perry-head:hover .bill {
-    animation: billWiggle 0.2s infinite alternate;
+    animation: billWiggle 0.25s infinite alternate;
 }
 
 @keyframes billWiggle {
-    0% { transform: translateX(-50%) rotate(-3deg); }
-    100% { transform: translateX(-50%) rotate(3deg); }
+    0% { transform: translateX(-50%) rotate(-4deg); }
+    100% { transform: translateX(-50%) rotate(4deg); }
 }
 
 .animate-breath {
-    animation: perryBreath 3s infinite ease-in-out;
+    animation: perryBreath 4s infinite ease-in-out;
 }
 
 @keyframes perryBreath {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03) translateY(-1px); }
+    50% { transform: scale(1.02) translateY(-1px); }
 }
 
 .hair-tuft {
@@ -126,7 +133,7 @@ body {
 .hair-tuft::before, .hair-tuft::after {
     content: '';
     position: absolute;
-    background-color: #008b7d;
+    background-color: var(--color-perry-dark-teal);
     width: 2.5px;
     height: 8px;
     border-radius: 2px;
@@ -136,21 +143,21 @@ body {
 
 .fedora {
     position: absolute;
-    top: -14px;
+    top: -15px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 5;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fedora-top {
-    width: 26px;
-    height: 15px;
-    background-color: #5d4037;
-    border-radius: 4px 4px 0 0;
+    width: 28px;
+    height: 16px;
+    background-color: #4a3728;
+    border-radius: 5px 5px 0 0;
     position: relative;
     box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
 }
@@ -161,16 +168,16 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 3.5px;
-    background-color: #1a1a1a;
+    height: 4px;
+    background-color: #111;
 }
 
 .fedora-brim {
-    width: 38px;
-    height: 4.5px;
-    background-color: #5d4037;
+    width: 40px;
+    height: 5px;
+    background-color: #4a3728;
     border-radius: 2px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .eyes-container {
@@ -178,110 +185,76 @@ body {
     justify-content: space-between;
     width: 36px;
     position: absolute;
-    top: 13px;
-    left: 4px;
+    top: 14px;
+    left: 5px;
 }
 
 .eye {
-    width: 14px;
-    height: 14px;
-    background-color: #ffffff;
+    width: 13px;
+    height: 13px;
+    background-color: #fff;
     border-radius: 50%;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 1.5px 3px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .pupil {
     width: 5px;
     height: 5px;
-    background-color: #000000;
+    background-color: #000;
     border-radius: 50%;
     position: absolute;
-    transition: transform 0.05s ease-out;
+    top: 4px;
+    left: 4px;
+    transition: transform 0.1s ease-out;
 }
 
 .bill {
-    width: 30px;
-    height: 12px;
-    background: linear-gradient(to bottom, #ffb703 0%, #fb8500 100%);
+    width: 32px;
+    height: 11px;
+    background: linear-gradient(to bottom, #f59e0b 0%, #d97706 100%);
     border-radius: 4px 4px 14px 14px;
     position: absolute;
-    bottom: 5px;
+    bottom: 6px;
     left: 50%;
     transform: translateX(-50%);
-    box-shadow: 0 2.5px 5px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255,255,255,0.3);
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    transition: transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
-/* --- עיצוב הלוגו המשודרג (הפתרון לבאג ה-P!) --- */
+/* לוגו AgentP */
 .logo {
     display: inline-flex;
     align-items: center;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+    font-size: 26px;
+    font-weight: 850;
+    letter-spacing: -0.5px;
 }
 
 .logo-accent {
-    background: linear-gradient(45deg, var(--color-blue), #0077ff);
+    background: linear-gradient(45deg, var(--color-blue), #0284c7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .logo-p {
-    background: linear-gradient(45deg, var(--color-yellow), #ff5500);
+    background: linear-gradient(45deg, var(--color-yellow), #ea580c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
-    overflow: hidden; 
-    max-width: 25px; /* מונע את הבאג בדפדפנים */
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.25s ease,
-                transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 25px;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, transform 0.4s;
 }
 
-/* ========================================================
-   🧙‍♂️ לוגיקת מצבי התצוגה של האתר (Light/Dark)
-   ======================================================== */
+/* לוגיקת מצבי תצוגה פרי */
+body.light-theme .fedora { opacity: 0; transform: translate(-50%, -15px) scale(0.5); }
+body.light-theme .hair-tuft { display: block; }
+body.light-theme .logo-p { opacity: 0; max-width: 0; transform: translateY(10px) scale(0); margin-right: -4px; }
 
-/* ☀️ מצב בהיר: */
-body.light-theme .fedora { 
-    opacity: 0; 
-    transform: translate(-50%, -12px) scale(0.6); 
-    pointer-events: none; 
-}
-body.light-theme .hair-tuft { 
-    display: block; 
-}
-body.light-theme .logo-p { 
-    opacity: 0; 
-    max-width: 0; 
-    transform: translateY(14px) scale(0.2); /* מחליק בצורה דרמטית למטה */
-    margin-right: -4px;
-}
+body.dark-theme .fedora { opacity: 1; transform: translate(-50%, 0) scale(1); }
+body.dark-theme .hair-tuft { display: none; }
+body.dark-theme .logo-p { opacity: 1; max-width: 25px; transform: translateY(0) scale(1); }
 
-/* 🌙 מצב כהה: */
-body.dark-theme .fedora { 
-    opacity: 1; 
-    transform: translate(-50%, 0) scale(1); 
-}
-body.dark-theme .hair-tuft { 
-    display: none; 
-}
-body.dark-theme .logo-p { 
-    opacity: 1; 
-    max-width: 25px; 
-    transform: translateY(0) scale(1); /* חוזר למעלה באנימציה מדהימה */
-    margin-right: 0;
-}
-
-/* כפתורים ורשימת היסטוריה */
+/* כפתור שיחה חדשה */
 .new-chat-btn {
     display: flex;
     align-items: center;
@@ -290,106 +263,286 @@ body.dark-theme .logo-p {
     background: transparent;
     color: var(--text-main);
     border: 1px dashed var(--color-blue);
-    padding: 12px;
-    border-radius: 12px;
+    padding: 14px;
+    border-radius: 14px;
     font-weight: 600;
+    font-size: 14.5px;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .new-chat-btn:hover {
-    background: rgba(0, 240, 255, 0.08);
+    background: rgba(56, 189, 248, 0.06);
     border-style: solid;
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
 }
 
-.history-section { margin-top: 28px; flex: 1; overflow-y: auto; }
-.history-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding: 0 6px; }
-.history-list { display: flex; flex-direction: column; gap: 8px; }
-.history-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
-.history-item:hover { background-color: var(--bg-card); border-color: rgba(255, 255, 255, 0.05); }
+.history-section { margin-top: 32px; flex: 1; overflow-y: auto; }
+.history-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; padding: 0 8px; }
+.history-list { display: flex; flex-direction: column; gap: 6px; }
 
-/* שדרוג ניאוני יפיפה לטאב השיחה הפעיל */
+/* פריט היסטוריה מעוצב */
+.history-item { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 12px 14px; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    border: 1px solid transparent; 
+}
+.history-item:hover { 
+    background-color: rgba(255, 255, 255, 0.03); 
+}
+body.light-theme .history-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 .history-item.active { 
-    background-color: var(--bg-card); 
-    border-right: 3px solid var(--color-orange); 
-    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.08), inset -5px 0 10px rgba(255, 0, 122, 0.03); 
+    background-color: var(--bg-main); 
+    border-color: var(--border-color);
+    box-shadow: inset -4px 0 0 var(--color-blue);
 }
 
-.history-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-muted); }
+.history-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; color: var(--text-muted); font-weight: 500; }
 .history-item.active .history-title, .history-item:hover .history-title { color: var(--text-main); }
-.history-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s ease; }
+.history-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s ease; }
 .history-item:hover .history-actions { opacity: 1; }
 
-.action-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.edit-btn:hover { color: var(--color-yellow); background: rgba(255,183,3,0.15); }
-.delete-btn:hover { color: #ff4d4d; background: rgba(255,77,77,0.15); }
+.action-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.action-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
+.delete-btn:hover { color: var(--color-orange); background: rgba(244,63,94,0.1); }
 
-/* --- אזור הצ'אט (Main Chat) --- */
-.chat-container { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; background-color: var(--bg-main); transition: background-color 0.3s; }
-.model-selector-container { padding: 14px 32px; background-color: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; z-index: 10; transition: background-color 0.3s, border-color 0.3s; backdrop-filter: blur(12px); }
+/* --- אזור הצ'אט המרכזי --- */
+.chat-container { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; background-color: var(--bg-main); }
+
+/* בר עליון משודרג - זכוכית שקופה */
+.model-selector-container { 
+    padding: 18px 40px; 
+    background-color: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-color); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    z-index: 10; 
+}
+body.light-theme .model-selector-container {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
 .selector-wrapper { display: flex; align-items: center; gap: 12px; font-size: 14px; }
 .selector-wrapper label { color: var(--text-muted); font-weight: 600; }
 
-#model-select { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; outline: none; cursor: pointer; font-size: 13.5px; transition: all 0.2s; }
-#model-select:focus { border-color: var(--color-blue); }
+#model-select { 
+    background-color: var(--bg-sidebar); 
+    color: var(--text-main); 
+    border: 1px solid var(--border-color); 
+    padding: 10px 20px; 
+    border-radius: 12px; 
+    outline: none; 
+    cursor: pointer; 
+    font-size: 14px; 
+    font-weight: 500;
+    transition: all 0.25s; 
+}
+#model-select:focus { border-color: var(--color-blue); box-shadow: var(--shadow-glow); }
 
-.header-actions { display: flex; align-items: center; gap: 16px; }
+.header-actions { display: flex; align-items: center; gap: 20px; }
 
-.theme-toggle-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 8px var(--shadow-color); }
-.theme-toggle-btn:hover { transform: rotate(15deg) scale(1.05); border-color: var(--color-blue); }
+.theme-toggle-btn { 
+    background: var(--bg-sidebar); 
+    border: 1px solid var(--border-color); 
+    color: var(--text-main); 
+    padding: 10px; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.25s ease; 
+}
+.theme-toggle-btn:hover { transform: scale(1.05); border-color: var(--color-blue); }
 
 body.dark-theme .sun-icon { display: block; }
 body.dark-theme .moon-icon { display: none; }
 body.light-theme .sun-icon { display: none; }
 body.light-theme .moon-icon { display: block; }
 
-.agent-status-badge { display: flex; align-items: center; gap: 8px; background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600; color: var(--color-blue); box-shadow: 0 2px 10px rgba(0, 240, 255, 0.05); }
-body.light-theme .agent-status-badge { background: rgba(0, 119, 255, 0.06); border-color: rgba(0, 119, 255, 0.2); color: var(--color-blue); }
+.agent-status-badge { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    background: rgba(56, 189, 248, 0.06); 
+    border: 1px solid rgba(56, 189, 248, 0.15); 
+    padding: 8px 16px; 
+    border-radius: 30px; 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: var(--color-blue); 
+}
 
-.status-dot { width: 7px; height: 7px; background-color: var(--color-blue); border-radius: 50%; box-shadow: 0 0 8px var(--color-blue); }
+.status-dot { width: 8px; height: 8px; background-color: var(--color-blue); border-radius: 50%; box-shadow: 0 0 10px var(--color-blue); }
 .animate-pulse { animation: pulseGlow 2s infinite ease-in-out; }
-@keyframes pulseGlow { 0%, 100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.2); } }
+@keyframes pulseGlow { 0%, 100% { opacity: 0.5; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.25); } }
 
-/* זרם ההודעות */
-.chat-messages { flex: 1; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding-bottom: 160px; }
+/* אזור זרם ההודעות */
+.chat-messages { 
+    flex: 1; 
+    padding: 40px; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 32px; 
+    padding-bottom: 180px; 
+}
 .chat-messages::-webkit-scrollbar { width: 6px; }
 .chat-messages::-webkit-scrollbar-track { background: transparent; }
 .chat-messages::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-.message { max-width: 75%; padding: 16px 22px; border-radius: 18px; line-height: 1.6; word-wrap: break-word; font-size: 15.5px; box-shadow: 0 6px 24px var(--shadow-color); white-space: pre-wrap; animation: smoothPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards; }
-@keyframes smoothPop { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+/* בועות הודעה בעיצוב פרימיום נקי */
+.message { 
+    max-width: 75%; 
+    padding: 18px 24px; 
+    border-radius: 20px; 
+    line-height: 1.65; 
+    word-wrap: break-word; 
+    font-size: 15.5px; 
+    box-shadow: var(--shadow-premium);
+    white-space: pre-wrap; 
+    animation: smoothPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+}
 
-.user-message { align-self: flex-start; background-color: var(--bg-card); border-right: 3px solid var(--color-blue); border-bottom-right-radius: 4px; }
-.assistant-message { align-self: flex-end; background-color: var(--bg-ai-bubble); border-left: 3px solid var(--color-orange); border-bottom-left-radius: 4px; border: 1px solid var(--border-color); }
+@keyframes smoothPop { 
+    from { opacity: 0; transform: translateY(15px) scale(0.98); } 
+    to { opacity: 1; transform: translateY(0) scale(1); } 
+}
 
-/* קלט טקסט - Textarea חכם */
-.chat-input-container { position: absolute; bottom: 0; left: 0; right: 0; padding: 32px; background: linear-gradient(transparent, var(--bg-main) 45%); }
-#chat-form { display: flex; align-items: flex-end; background-color: var(--bg-card); border-radius: 16px; padding: 12px 16px; border: 1px solid var(--border-color); box-shadow: 0 12px 40px var(--shadow-color); transition: all 0.25s ease; max-width: 900px; margin: 0 auto; gap: 12px; }
-#chat-form:focus-within { border-color: var(--color-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.15); }
+/* עיצוב בועת משתמש - יישור לשמאל, גוון רקע כרטיס ניטרלי */
+.user-message { 
+    align-self: flex-start; 
+    background-color: var(--bg-sidebar); 
+    border: 1px solid var(--border-color);
+    border-bottom-right-radius: 4px; 
+}
 
-#user-input { flex: 1; background: none; border: none; color: var(--text-main); font-size: 16px; padding: 4px 6px; outline: none; font-family: inherit; resize: none; max-height: 150px; line-height: 1.5; overflow-y: auto; }
+/* עיצוב בועת אסיסטנט - גוון פרימיום עם פס כחול דק */
+.assistant-message { 
+    align-self: flex-end; 
+    background-color: var(--bg-ai-bubble); 
+    border: 1px solid var(--border-color);
+    border-right: 4px solid var(--color-blue);
+    border-bottom-left-radius: 4px; 
+}
+
+/* תיבת הקלט הניידת (Floating Input Bar) */
+.chat-input-container { 
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    right: 0; 
+    padding: 32px 40px; 
+    background: linear-gradient(transparent, var(--bg-main) 50%); 
+}
+
+#chat-form { 
+    display: flex; 
+    align-items: flex-end; 
+    background-color: var(--bg-sidebar); 
+    border-radius: 20px; 
+    padding: 14px 20px; 
+    border: 1px solid var(--border-color); 
+    box-shadow: var(--shadow-premium);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    max-width: 850px; 
+    margin: 0 auto; 
+    gap: 14px; 
+}
+#chat-form:focus-within { 
+    border-color: var(--color-blue); 
+    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3), var(--shadow-glow); 
+}
+
+#user-input { 
+    flex: 1; 
+    background: none; 
+    border: none; 
+    color: var(--text-main); 
+    font-size: 15.5px; 
+    padding: 6px 0; 
+    outline: none; 
+    font-family: inherit; 
+    resize: none; 
+    max-height: 140px; 
+    line-height: 1.5; 
+    overflow-y: auto; 
+}
 #user-input::placeholder { color: var(--text-muted); }
-#user-input:disabled { opacity: 0.6; cursor: not-allowed; }
+#user-input:disabled { opacity: 0.5; }
 
-#send-btn { background: var(--btn-gradient); color: #040508; border: none; padding: 10px 22px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; align-self: flex-end; height: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-#send-btn:hover:not(:disabled) { background: var(--btn-gradient-hover); box-shadow: 0 0 18px rgba(255, 183, 3, 0.45); }
-#send-btn:disabled { opacity: 0.5; cursor: not-allowed; background: var(--text-muted); box-shadow: none; }
-#send-btn:active:not(:disabled) { transform: scale(0.96); }
+/* כפתור שליחה יוקרתי */
+#send-btn { 
+    background: var(--color-blue); 
+    color: #0f172a; 
+    border: none; 
+    padding: 0 24px; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    font-weight: 700; 
+    font-size: 14px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+    align-self: flex-end; 
+    height: 42px; 
+}
+body.light-theme #send-btn {
+    color: #ffffff;
+}
+
+#send-btn:hover:not(:disabled) { 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+#send-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--text-muted); color: var(--bg-main); box-shadow: none; }
+#send-btn:active:not(:disabled) { transform: scale(0.97); }
 
 /* אינדיקטור טעינה */
-.typing-indicator { display: flex; flex-direction: column; gap: 10px; padding: 16px 22px; background-color: var(--bg-ai-bubble); border: 1px solid var(--border-color); border-radius: 18px; border-bottom-left-radius: 4px; align-self: flex-end; width: fit-content; box-shadow: 0 4px 15px var(--shadow-color); }
-.indicator-status-text { font-size: 12.5px; color: var(--color-yellow); font-weight: 600; }
-.dots-wrapper { display: flex; gap: 6px; }
-.typing-indicator span { width: 8px; height: 8px; background-color: var(--text-muted); border-radius: 50%; display: inline-block; animation: pulseDots 1.4s infinite ease-in-out both; }
+.typing-indicator { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    padding: 18px 24px; 
+    background-color: var(--bg-ai-bubble); 
+    border: 1px solid var(--border-color); 
+    border-radius: 20px; 
+    border-bottom-left-radius: 4px; 
+    align-self: flex-end; 
+    width: fit-content; 
+    box-shadow: var(--shadow-premium);
+}
+.indicator-status-text { font-size: 13px; color: var(--color-yellow); font-weight: 650; letter-spacing: 0.3px; }
+.dots-wrapper { display: flex; gap: 6px; padding-right: 2px; }
+.typing-indicator span { width: 7px; height: 7px; background-color: var(--text-muted); border-radius: 50%; display: inline-block; animation: pulseDots 1.4s infinite ease-in-out both; }
 .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
 .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-@keyframes pulseDots { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1.2); opacity: 1; background-color: var(--color-blue); } }
 
+@keyframes pulseDots { 
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; } 
+    40% { transform: scale(1.2); opacity: 1; background-color: var(--color-blue); } 
+}
+
+/* רספונסיביות למובייל */
 @media (max-width: 768px) {
     .sidebar { display: none; }
-    .chat-messages { padding: 16px; }
-    .message { max-width: 85%; }
+    .chat-messages { padding: 20px; gap: 24px; }
+    .message { max-width: 90%; padding: 14px 18px; }
     .chat-input-container { padding: 16px; }
+    .model-selector-container { padding: 14px 20px; }
     .agent-status-badge { display: none; } 
 }
+

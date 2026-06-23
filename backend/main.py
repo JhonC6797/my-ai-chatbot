@@ -1,15 +1,12 @@
 # main.py
 import os
 import uuid
-import httpx  
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from openai import OpenAI  
 from dotenv import load_dotenv
 
-# הייבוא שמחבר אותנו ללוגיקה של הסוכן הנייטיב החדש
 from backend.agent_manager import run_agent_search
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,16 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-openai_client = None
-if os.getenv("OPENAI_API_KEY"):
-    try:
-        openai_client = OpenAI()
-    except Exception as e:
-        print(f"Error initializing OpenAI Client: {e}")
-
 LOCAL_MODEL_NAME = "gemma4:latest"
 
-# מבנה נתונים ריק לצורך תאימות עם הפרונטאנד
+# מסד הנתונים הזמני בזיכרון השרת
 conversations_db = {}
 
 class ChatMessageInput(BaseModel):
@@ -44,7 +34,6 @@ class ChatMessageInput(BaseModel):
 class UpdateTitleInput(BaseModel):
     title: str
 
-# 1. שליפת כל השיחות הקיימות
 @app.get("/api/conversations")
 def get_conversations():
     return [
@@ -52,7 +41,6 @@ def get_conversations():
         for conv_id, data in conversations_db.items()
     ]
 
-# 2. יצירת שיחה חדשה
 @app.post("/api/conversations")
 def create_conversation():
     conv_id = str(uuid.uuid4())
@@ -62,45 +50,59 @@ def create_conversation():
     }
     return {"id": conv_id, "title": "שיחה חדשה"}
 
-# 3. שליפת הודעות
 @app.get("/api/conversations/{conv_id}/messages")
 def get_messages(conv_id: str):
     if conv_id not in conversations_db:
-        return []
+        raise HTTPException(status_code=404, detail="השיחה לא נמצאה")
     return conversations_db[conv_id]["messages"]
 
-# 4. מחיקת שיחה
 @app.delete("/api/conversations/{conv_id}")
 def delete_conversation(conv_id: str):
     if conv_id in conversations_db:
         del conversations_db[conv_id]
-        return {"status": "success"}
     return {"status": "success"}
 
-# 5. עדכון שם השיחה
 @app.put("/api/conversations/{conv_id}/title")
 def update_title(conv_id: str, input_data: UpdateTitleInput):
+    if conv_id not in conversations_db:
+        raise HTTPException(status_code=404, detail="השיחה לא נמצאה")
+    
+    conversations_db[conv_id]["title"] = input_data.title
     return {"status": "success", "title": input_data.title}
 
-# 6. שליחת הודעה לצ'אט - גרסה נקייה ללא זיכרון (Stateless Test)
 @app.post("/api/conversations/{conv_id}/chat")
 async def chat_endpoint(conv_id: str, request: ChatMessageInput):
+    if conv_id not in conversations_db:
+        raise HTTPException(status_code=404, detail="השיחה לא נמצאה")
+        
     user_message = request.message
 
+    # שמירת הודעת המשתמש בהיסטוריה
+    conversations_db[conv_id]["messages"].append({"role": "user", "content": user_message})
+
     try:
-        # שולחים רשימה ריקה [] כהיסטוריה כדי לנטרל בעיות סנכרון זיכרון
+        # שליפת ההיסטוריה הקודמת (ללא ההודעה הנוכחית שכבר נשלחת בנפרד)
+        history = conversations_db[conv_id]["messages"][:-1]
+        
+        # הרצת הסוכן עם הזיכרון המלא
         ai_text = run_agent_search(
             provider=request.provider,
             local_model_name=LOCAL_MODEL_NAME,
-            history_messages=[], 
+            history_messages=history, 
             user_message=user_message
         )
         
+        # שמירת תגובת הסוכן בהיסטוריה
+        conversations_db[conv_id]["messages"].append({"role": "assistant", "content": ai_text})
+        
         return {
             "response": ai_text,
-            "conversation_title": "בדיקת סוכן חם"
+            "conversation_title": conversations_db[conv_id]["title"]
         }
         
     except Exception as e:
         print(f"Agent Execution Error: {e}")
+        # הסרת הודעת המשתמש האחרונה במקרה של כישלון כדי למנוע חוסר סנכרון
+        if conversations_db[conv_id]["messages"]:
+            conversations_db[conv_id]["messages"].pop()
         raise HTTPException(status_code=500, detail=f"הסוכן נתקל בשגיאה: {str(e)}")
